@@ -1,0 +1,32 @@
+from sqlalchemy import ForeignKey, VARCHAR
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class PlayersOrm(Base):
+    __tablename__: str = "players"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(VARCHAR(length=255))
+
+    def __repr__(self) -> str:
+        return f"PlayerOrm(id={self.id}, name={self.name!r})"
+
+
+class MatchesOrm(Base):
+    __tablename__: str = "matches"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    uuid: Mapped[str] = mapped_column(VARCHAR(length=255), unique=True)
+    player1: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    player2: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    winner: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    score: Mapped[str] = mapped_column(VARCHAR(length=255))
+
+    def __repr__(self):
+        return (f"MatchesOrm(id={self.id}, uuid={self.uuid}, "
+                f"player1={self.player1}, player2={self.player2},"
+                f"winner={self.winner},score={self.score}")
