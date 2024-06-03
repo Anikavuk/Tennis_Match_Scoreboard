@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "tennis-match-scoreboard"
+version = "0.1.0"
+description = ""
+authors = ["Anikavuk <usla_2018@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
