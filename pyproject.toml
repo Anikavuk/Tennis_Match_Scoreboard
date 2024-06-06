@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.9"
 sqlalchemy = "^2.0.30"
 mysql = "^0.0.3"
+alembic = "^1.13.1"
+pydantic = "^2.7.3"
 
 
 [build-system]

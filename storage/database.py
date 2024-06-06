@@ -15,8 +15,9 @@ SQLALCHEMY_DATABASE_URL = URL.create(
 engine = create_engine(SQLALCHEMY_DATABASE_URL,
                         echo=True, future=True)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=True, autoflush=True, bind=engine)
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
+# print(SQLALCHEMY_DATABASE_URL)
