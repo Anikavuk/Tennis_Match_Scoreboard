@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "project_4"
+version = "0.1.0"
+description = ""
+authors = ["Anikavuk <usla_2018@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.30"
+mysql = "^0.0.3"
+alembic = "^1.13.1"
+pydantic = "^2.7.3"
+waitress = "^3.0.0"
+python-dotenv = "^1.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
