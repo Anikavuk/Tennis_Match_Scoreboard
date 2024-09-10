@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import ForeignKey, VARCHAR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import String
+from sqlalchemy.sql.sqltypes import CHAR
 
 
 class Base(DeclarativeBase):
@@ -23,7 +23,7 @@ class MatchesOrm(Base):
     __tablename__: str = "matches"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    uuid: Mapped[str] = mapped_column(String(36), primary_key=True, nullable=False, unique=True,
+    uuid: Mapped[str] = mapped_column(CHAR(36), primary_key=True, nullable=False, unique=True,
                                       default=lambda: str(uuid.uuid4()))
     # mapped_column(unique=True, nullable=False)
     player1: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
