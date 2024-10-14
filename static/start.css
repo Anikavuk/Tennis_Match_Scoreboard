@@ -48,7 +48,11 @@ body {
     justify-content: center;
     margin-top: 20px;
 }
-
+.pagination {
+    display: flex;
+    justify-content: center;
+    /*margin-top: 20px;*/
+}
 .table-container {
     max-width: 800px; /* Устанавливаем максимальную ширину контейнера */
     margin: 50px auto;

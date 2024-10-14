@@ -8,9 +8,9 @@ from models import Base
 
 load_dotenv()
 
-database_url = os.getenv('DATABASE_URL')
+database = os.getenv('DATABASE_URL')
 
-engine = create_engine(database_url, echo=True, future=True)
+engine = create_engine(database, echo=True, future=True)
 
 SessionLocal = sqlalchemy.orm.sessionmaker(autocommit=True, autoflush=True, bind=engine)
 

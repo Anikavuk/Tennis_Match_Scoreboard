@@ -13,7 +13,7 @@ class PlayersOrm(Base):
     __tablename__: str = "players"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(VARCHAR(length=255))
+    name: Mapped[str] = mapped_column(VARCHAR(length=255), unique=True, nullable=False)
 
     def __repr__(self) -> str:
         return f"PlayerOrm(id={self.id}, name={self.name!r})"
