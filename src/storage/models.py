@@ -1,7 +1,7 @@
 import uuid
 
-from sqlalchemy import ForeignKey, VARCHAR
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import ForeignKey, VARCHAR, JSON
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import CHAR
 
 
@@ -29,7 +29,11 @@ class MatchesOrm(Base):
     player1: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
     player2: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
     winner: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
-    score: Mapped[str] = mapped_column(VARCHAR(length=255))
+    score: Mapped[JSON] = mapped_column(JSON)
+
+    player1_relation = relationship("PlayersOrm", foreign_keys=[player1])
+    player2_relation = relationship("PlayersOrm", foreign_keys=[player2])
+    winner_relation = relationship("PlayersOrm", foreign_keys=[winner])
 
     def __repr__(self):
         return (f"MatchesOrm(id={self.id}, uuid={self.uuid}, "
