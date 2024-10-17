@@ -15,8 +15,8 @@ class PlayerManager:
                 db.add(player)
                 db.commit()
         except IntegrityError:
-            print('Алсу, создай ошибку при загрузке игрока, если имя повторяется')
-
+            # return ErrorResponse.error_response(exception=DatabaseErrorException())
+            pass
     def get_all_players(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
