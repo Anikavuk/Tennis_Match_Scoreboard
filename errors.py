@@ -13,6 +13,11 @@ class IntegrityError(Exception):
             self.message = message
         super().__init__(self.message)
 
+class DatabaseErrorException(Exception):
+    def __init__(self, message="База данных недоступна"):
+        self.message = message
+        super().__init__(self.message)
+
 
 class ErrorResponse:
     @classmethod
@@ -22,6 +27,9 @@ class ErrorResponse:
         if isinstance(exception, IntegrityError):
             error_code = 400
             error_message = exception.message
+        elif isinstance(exception, DatabaseErrorException):
+            error_code = 500
+            error_message = "База данных недоступна"
         # elif isinstance(exception, CurrencyNotFoundException):
         #     error_code = 404
         #     error_message = "Валюта не найдена"

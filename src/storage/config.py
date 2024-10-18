@@ -1,8 +1,8 @@
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
 from database import engine, Session
+from errors import ErrorResponse, IntegrityError, DatabaseErrorException
 from models import PlayersOrm, MatchesOrm
-from sqlalchemy import text, select
+from sqlalchemy.exc import OperationalError
+
 
 class PlayerManager:
     def __init__(self, name):
@@ -15,52 +15,54 @@ class PlayerManager:
                 db.add(player)
                 db.commit()
         except IntegrityError:
-            # return ErrorResponse.error_response(exception=DatabaseErrorException())
-            pass
+            return ErrorResponse.error_response(exception=IntegrityError())
+
     def get_all_players(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
                 players = db.query(PlayersOrm).all()
-                for player in players:
-                    return f"{player.id} {player.name}"
-        except:
-            print('Придумать ошибку.. какую ошибку при выгрузке всех игроков придумать?')
+                all_players = [(player.id, player.name) for player in players]
+                return all_players
 
-    # def is_player_name_in_database(self, player_name):
-    #     try:
-    #         with Session(autoflush=False, bind=engine) as db:
-    #             first = db.query(PlayersOrm).filter(PlayersOrm.name == player_name)
+        except OperationalError:
+            #Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
+            # то исключение OperationalError выбрала или не то
+            return ErrorResponse.error_response(exception=DatabaseErrorException())
 
-ff = PlayerManager('Максим')
-ff.save_player()
+    class MatchManager:
+        def __init__(self, player1, player2, winner, score):
+            self.player1 = player1
+            self.player1 = player2
+            self.winner = winner
+            self.score = score
 
-#
-# # здесь создать таблицы, методы внести новые данные , удалить, пр.
-#
-# def select_players_relationships():
-#     with Session(autoflush=False, bind=engine) as db:
-#         players = db.query(PlayersOrm).all()
-#         for player in players:
-#             print(f"{player.id} {player.name}")
-# with Session(autoflush=False, bind=engine) as db:
-#     tom = PlayersOrm(name="Оля")
-#     db.add(tom)
-#     db.commit()
-# with Session(autoflush=False, bind=engine) as db:
-#     tom = MatchesOrm(player1=5, player2=9, winner=9, score=3)
-#     g = MatchesOrm(player1=8, player2=5, winner=5, score=3)
-#     db.add(tom)
-#     db.commit()
+        def save_matches(self):
+            try:
+                with Session(autoflush=False, bind=engine) as db:
+                    match = MatchesOrm()
+                    db.add(match)
+                    db.commit()
+            except IntegrityError:
+                return ErrorResponse.error_response(exception=IntegrityError())
 
-# with Session(autoflush=False, bind=engine) as db:
-#     res = db.execute(text('SELECT VERSION()'))
-#     print(f"{res.first()=}")
-#
-# select_players_relationships()
-# def select_MatchesOrm_relationships():
-#     with Session(autoflush=False, bind=engine) as db:
-#         players = db.query(MatchesOrm).all()
-#         for player in players:
-#             print(f"{player.id} {player.uuid} {player.player1} {player.player2} {player.winner} {player.score}")
-#
-# select_MatchesOrm_relationships()
+        def get_all_matches(self):
+            try:
+                with Session(autoflush=False, bind=engine) as db:
+                    matches = db.query(MatchesOrm).all()
+                    all_matches = [(match.id,
+                                    match.player1,
+                                    match.player2,
+                                    match.winner,
+                                    match.score)
+                                   for match in matches]
+                    return all_matches
+
+            except OperationalError:
+                # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
+                # то исключение OperationalError выбрала или не то
+                return ErrorResponse.error_response(exception=DatabaseErrorException())
+    def is_player_name_in_database(self, player_name):
+        """Проверка имени в базе данных, нужна эта функция или нет"""
+        with Session(autoflush=False, bind=engine) as db:
+            first = db.query(PlayersOrm).filter(PlayersOrm.name == player_name)
+            pass
