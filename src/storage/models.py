@@ -9,32 +9,32 @@ class Base(DeclarativeBase):
     pass
 
 
-class PlayersOrm(Base):
+class Player(Base):
     __tablename__: str = 'players'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(VARCHAR(length=255), unique=True, nullable=False)
 
     def __repr__(self) -> str:
-        return f"PlayerOrm(id={self.id}, name={self.name!r})"
+        return f"Player(id={self.id}, name={self.name!r})"
 
 
-class MatchesOrm(Base):
+class Match(Base):
     __tablename__: str = 'matches'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     uuid: Mapped[str] = mapped_column(CHAR(36), primary_key=True, nullable=False, unique=True,
                                       default=lambda: str(uuid.uuid4()))
-    player1: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
-    player2: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
-    winner: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
+    player1_id: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
+    player2_id: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
+    winner_id: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
     score: Mapped[JSON] = mapped_column(JSON)
 
-    player1_relation = relationship('PlayersOrm', foreign_keys=[player1], lazy='joined')
-    player2_relation = relationship('PlayersOrm', foreign_keys=[player2], lazy='joined')
-    winner_relation = relationship('PlayersOrm', foreign_keys=[winner], lazy='joined')
+    player1 = relationship('PlayersOrm', foreign_keys=[player1_id], lazy='joined')
+    player2 = relationship('PlayersOrm', foreign_keys=[player2_id], lazy='joined')
+    winner = relationship('PlayersOrm', foreign_keys=[winner_id], lazy='joined')
 
     def __repr__(self):
-        return (f"MatchesOrm(id={self.id}, uuid={self.uuid},"
-                f"player1={self.player1}, player2={self.player2},"
-                f"winner={self.winner},score={self.score}")
+        return (f"Match(id={self.id}, uuid={self.uuid},"
+                f"player1={self.player1_id}, player2={self.player2_id},"
+                f"winner={self.winner_id},score={self.score}")

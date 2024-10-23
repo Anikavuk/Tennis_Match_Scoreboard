@@ -2,7 +2,7 @@ from sqlalchemy.orm import joinedload, aliased
 
 from database import engine, Session
 from errors import ErrorResponse, IntegrityError, DatabaseErrorException
-from models import PlayersOrm, MatchesOrm
+from models import Player, Match
 from sqlalchemy.exc import OperationalError
 
 
@@ -13,7 +13,7 @@ class PlayerManager:
     def save_player(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                player = PlayersOrm(name=self.name)
+                player = Player(name=self.name)
                 db.add(player)
                 db.commit()
         except IntegrityError:
@@ -22,7 +22,7 @@ class PlayerManager:
     def get_all_players(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                players = db.query(PlayersOrm).all()
+                players = db.query(Player).all()
                 all_players = [(player.id, player.name) for player in players]
                 return all_players
 
@@ -42,7 +42,7 @@ class MatchManager:
     def save_matches(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                match = MatchesOrm(player1=self.player1,
+                match = Match(player1=self.player1,
                                    player2=self.player2,
                                    winner=self.winner,
                                    score=self.score)
@@ -55,14 +55,14 @@ class MatchManager:
         # try:
 
         with (Session(autoflush=False, bind=engine) as bd):
-            matches_query = bd.query(MatchesOrm.id,
-                                     MatchesOrm.score,
-                                     PlayersOrm.name.label('player1'),
-                                     PlayersOrm.name.label('player2'),
-                                     PlayersOrm.name.label('winner')
-                                     ).join(PlayersOrm, MatchesOrm.player1 == PlayersOrm.id
-                                            ).join(PlayersOrm, MatchesOrm.player2 == PlayersOrm.id
-                                                   ).join(PlayersOrm, MatchesOrm.winner == PlayersOrm.id)
+            matches_query = bd.query(Match.id,
+                                     Match.score,
+                                     Player.name.label('player1'),
+                                     Player.name.label('player2'),
+                                     Player.name.label('winner')
+                                     ).join(Player, Match.player1 == Player.id
+                                            ).join(Player, Match.player2 == Player.id
+                                                   ).join(Player, Match.winner == Player.id)
             results = matches_query.all()
 
             # Форматируем результаты для удобства
@@ -85,7 +85,7 @@ class MatchManager:
     def list_player_matches(self, player_name):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                matches = db.query(MatchesOrm).filter(self.name==player_name).all()
+                matches = db.query(Match).filter(self.name==player_name).all()
                 all_matches = [(match.id,
                                 match.player1,
                                 match.player2,
@@ -102,13 +102,14 @@ class MatchManager:
 # def is_player_name_in_database(self, player_name):
 #     """Проверка имени в базе данных, нужна эта функция или нет надо решить"""
 #     with Session(autoflush=False, bind=engine) as db:
-#         first = db.query(PlayersOrm).filter(PlayersOrm.name == player_name)
+#         first = db.query(Player).filter(Player.name == player_name)
 #         pass
 
 
 ff = PlayerManager('Дэн') # [(5, 'Даша'), (1, 'Денис'), (7, 'Дима'), (8, 'Дэн'), (2, 'Женя'), (4, 'Максим'), (3, 'Оля'), (6, 'Юра')]
-# print(ff.save_player())
+print(ff.save_player())
 # print(ff.get_all_players())
-mm = MatchManager(7, 1, 7, 3)
-# mm.save_matches()
-print(mm.get_all_matches())
+# mm = MatchManager(7, 1, 7, 3)
+# # mm.save_matches()
+# # print(mm.get_all_matches())
+# print(mm.list_player_matches('Даша'))
