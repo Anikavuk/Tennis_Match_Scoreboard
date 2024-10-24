@@ -14,6 +14,6 @@ engine = create_engine(database, echo=True, future=True)
 
 SessionLocal = sqlalchemy.orm.sessionmaker(autocommit=True, autoflush=True, bind=engine)
 
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine) # при создании новой миграции удали эту строчку и бд полностью
 Session = sqlalchemy.orm.sessionmaker(bind=engine)
 session = Session()

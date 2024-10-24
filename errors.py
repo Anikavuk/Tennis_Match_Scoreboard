@@ -1,16 +1,13 @@
 from sqlalchemy.exc import IntegrityError
 
 
-class IntegrityError(Exception):
-    def __init__(self, message=None):
-        if not message:
-            self.message = ("It looks like the name you are trying to use is "
-                            "already taken. To continue, you need to enter "
-                            "a different, unique name")
+class IntegrityError(Exception): # дубликат имени в бд
+    def __init__(self, message='You need to enter a different, unique nameone'):
+
         # Похоже, что имя, которое вы пытаетесь использовать, уже занято.
         # Чтобы продолжить, вам нужно ввести другое, уникальное имя
-        else:
-            self.message = message
+
+        self.message = message
         super().__init__(self.message)
 
 class DatabaseErrorException(Exception):

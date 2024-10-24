@@ -30,9 +30,9 @@ class Match(Base):
     winner_id: Mapped[int] = mapped_column(ForeignKey('players.id', ondelete='CASCADE'))
     score: Mapped[JSON] = mapped_column(JSON)
 
-    player1 = relationship('PlayersOrm', foreign_keys=[player1_id], lazy='joined')
-    player2 = relationship('PlayersOrm', foreign_keys=[player2_id], lazy='joined')
-    winner = relationship('PlayersOrm', foreign_keys=[winner_id], lazy='joined')
+    player1 = relationship('Player', foreign_keys=[player1_id], lazy='joined')
+    player2 = relationship('Player', foreign_keys=[player2_id], lazy='joined')
+    winner = relationship('Player', foreign_keys=[winner_id], lazy='joined')
 
     def __repr__(self):
         return (f"Match(id={self.id}, uuid={self.uuid},"

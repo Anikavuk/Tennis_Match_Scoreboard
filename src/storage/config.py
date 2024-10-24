@@ -1,9 +1,7 @@
-from sqlalchemy.orm import joinedload, aliased
-
+from sqlalchemy.exc import IntegrityError, OperationalError
 from database import engine, Session
-from errors import ErrorResponse, IntegrityError, DatabaseErrorException
+from errors import ErrorResponse, DatabaseErrorException
 from models import Player, Match
-from sqlalchemy.exc import OperationalError
 
 
 class PlayerManager:
@@ -17,6 +15,9 @@ class PlayerManager:
                 db.add(player)
                 db.commit()
         except IntegrityError:
+            # print('You need to enter a different, unique nameone')
+            # db.rollback()
+            # здесь нужна ошибка дубликата имени, если в базе данных есть имя , то не сохранять
             return ErrorResponse.error_response(exception=IntegrityError())
 
     def get_all_players(self):
@@ -27,89 +28,66 @@ class PlayerManager:
                 return all_players
 
         except OperationalError:
-            #Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
+            # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
             # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
 
+
 class MatchManager:
     def __init__(self, player1, player2, winner, score):
-        self.player1 = player1
-        self.player2 = player2
-        self.winner = winner
+        self.player1_id = player1
+        self.player2_id = player2
+        self.winner_id = winner
         self.score = score
 
-
-    def save_matches(self):
+    def save_match(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                match = Match(player1=self.player1,
-                                   player2=self.player2,
-                                   winner=self.winner,
-                                   score=self.score)
+                match = Match(player1_id = self.player1_id,
+                              player2_id = self.player2_id,
+                              winner_id = self.winner_id,
+                              score = self.score)
                 db.add(match)
                 db.commit()
         except IntegrityError:
             return ErrorResponse.error_response(exception=IntegrityError())
 
     def get_all_matches(self):
-        # try:
+        try:
 
-        with (Session(autoflush=False, bind=engine) as bd):
-            matches_query = bd.query(Match.id,
-                                     Match.score,
-                                     Player.name.label('player1'),
-                                     Player.name.label('player2'),
-                                     Player.name.label('winner')
-                                     ).join(Player, Match.player1 == Player.id
-                                            ).join(Player, Match.player2 == Player.id
-                                                   ).join(Player, Match.winner == Player.id)
-            results = matches_query.all()
+            with (Session(autoflush=False, bind=engine) as bd):
+                matches_query = bd.query(Match)
+                results = matches_query.all()
 
-            # Форматируем результаты для удобства
-            matches = []
-            for match in results:
-                matches.append({
-                    'match_id': match.id,
-                    'player1': match.player1_relation.name,
-                    'player2': match.player2_relation.name,
-                    'winner': match.winner_relation.name,
-                    'score': match.score
-                })
+                # Форматируем результаты для удобства
+                matches = []
+                for match in results:
+                    matches.append({
+                        'match_id': match.id,
+                        'player1': match.player1.name,
+                        'player2': match.player2.name,
+                        'winner': match.winner.name,
+                        'score': match.score
+                    })
 
-            return results
-        # except OperationalError:
-        #     # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
-        #     # то исключение OperationalError выбрала или не то
-        #     return ErrorResponse.error_response(exception=DatabaseErrorException())
+                return matches
+        except OperationalError:
+            # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
+            # то исключение OperationalError выбрала или не то
+            return ErrorResponse.error_response(exception=DatabaseErrorException())
 
     def list_player_matches(self, player_name):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                matches = db.query(Match).filter(self.name==player_name).all()
-                all_matches = [(match.id,
-                                match.player1,
-                                match.player2,
-                                match.winner,
-                                match.score)
+                matches = db.query(Match).filter((Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
+                all_matches = [{'match_id': match.id,
+                                'player1': match.player1.name,
+                                'player2': match.player2.name,
+                                'winner': match.winner.name,
+                                'score': match.score}
                                for match in matches]
                 return all_matches
         except OperationalError:
             # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
             # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
-
-
-# def is_player_name_in_database(self, player_name):
-#     """Проверка имени в базе данных, нужна эта функция или нет надо решить"""
-#     with Session(autoflush=False, bind=engine) as db:
-#         first = db.query(Player).filter(Player.name == player_name)
-#         pass
-
-
-ff = PlayerManager('Дэн') # [(5, 'Даша'), (1, 'Денис'), (7, 'Дима'), (8, 'Дэн'), (2, 'Женя'), (4, 'Максим'), (3, 'Оля'), (6, 'Юра')]
-print(ff.save_player())
-# print(ff.get_all_players())
-# mm = MatchManager(7, 1, 7, 3)
-# # mm.save_matches()
-# # print(mm.get_all_matches())
-# print(mm.list_player_matches('Даша'))
