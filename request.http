@@ -1,0 +1,36 @@
+POST http://localhost:8080/new-match
+Content-Type: application/x-www-form-urlencoded
+
+player1=ВАСЯ&
+player2=ДЖЕК
+
+<> 2024-10-26T204726.500.txt
+<> 2024-10-26T203705.500.txt
+<> 2024-10-26T203636.500.txt
+<> 2024-10-26T203148.500.txt
+<> 2024-10-26T202611.500.txt
+<> 2024-10-26T200635.500.txt
+<> 2024-10-26T195826.500.txt
+<> 2024-10-26T195804.200.txt
+<> 2024-10-26T195754.200.txt
+<> 2024-10-26T195702.200.txt
+<> 2024-10-26T195654.200.txt
+<> 2024-10-26T195442.200.txt
+
+
+###
+POST http://localhost:8080/new-match
+Content-Type: application/text
+
+player1=Кен&player2=Барби
+
+<> 2024-10-26T214642.500.txt
+<> 2024-10-26T205530.500.txt
+<> 2024-10-24T225621.404.txt
+<> 2024-10-24T225548.404.txt
+
+###
+#GET http://localhost:8080/api/item?id=99
+#Accept: application/json
+
+###
