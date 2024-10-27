@@ -36,12 +36,14 @@ def application(environ, start_response):
         player1 = form.get('player1')[0]
         player2 = form.get('player2')[0]
 
-        response_body = f"{player1},{player2}".encode('utf-8')
+        response_body = f"{player1} {player2}".encode('utf-8')    # TODO: Исправить ответ на запрос
+
         status = '200 OK'
         headers = [('Content-Type', 'text/plain; charset=utf-8'),
                    ('Content-Length', str(len(response_body)))]
         start_response(status, headers)
-        print(player1)
+        print(player1)    # TODO: добавить метод в сохранения имени в бд, проверка имени?
+
         return [response_body]
 
     else:
