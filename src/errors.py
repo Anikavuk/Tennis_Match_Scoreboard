@@ -15,6 +15,11 @@ class DatabaseErrorException(Exception):
         self.message = message
         super().__init__(self.message)
 
+class InvalidPlayernameError(Exception):
+    def __init__(self, message="Введите имя"):
+        self.message = message
+        super().__init__(self.message)
+
 
 class ErrorResponse:
     @classmethod
@@ -27,9 +32,9 @@ class ErrorResponse:
         elif isinstance(exception, DatabaseErrorException):
             error_code = 500
             error_message = "База данных недоступна"
-        # elif isinstance(exception, CurrencyNotFoundException):
-        #     error_code = 404
-        #     error_message = "Валюта не найдена"
+        elif isinstance(exception, InvalidPlayernameError):
+            error_code = 400
+            error_message = "Введите имя"
         # elif isinstance(exception, IndexError):
         #     error_code = 404
         #     error_message = "Обменный курс для пары не найден"

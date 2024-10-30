@@ -14,6 +14,7 @@ pydantic = "^2.7.3"
 waitress = "^3.0.0"
 python-dotenv = "^1.0.1"
 jinja2 = "^3.1.4"
+paste = "^3.10.1"
 
 [build-system]
 requires = ["poetry-core"]

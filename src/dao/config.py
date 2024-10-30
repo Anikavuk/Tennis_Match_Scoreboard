@@ -1,7 +1,8 @@
 from sqlalchemy.exc import IntegrityError, OperationalError
-from database import engine, Session
-from errors import ErrorResponse, DatabaseErrorException
-from models import Player, Match
+
+from src.model.database import engine, Session
+from src.errors import ErrorResponse, DatabaseErrorException
+from src.model.models import Player, Match
 
 
 class PlayerManager:
@@ -32,6 +33,14 @@ class PlayerManager:
             # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
 
+    def is_valid_username(self):
+        for letter in self.name:
+            if not ((65 <= ord(letter) <= 90) or
+                    (97 <= ord(letter) <= 122) or
+                    (1040 <= ord(letter) <= 1103)):
+                return False
+        return True
+
 
 class MatchManager:
     def __init__(self, player1, player2, winner, score):
@@ -43,10 +52,10 @@ class MatchManager:
     def save_match(self):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                match = Match(player1_id = self.player1_id,
-                              player2_id = self.player2_id,
-                              winner_id = self.winner_id,
-                              score = self.score)
+                match = Match(player1_id=self.player1_id,
+                              player2_id=self.player2_id,
+                              winner_id=self.winner_id,
+                              score=self.score)
                 db.add(match)
                 db.commit()
         except IntegrityError:
@@ -79,7 +88,8 @@ class MatchManager:
     def list_player_matches(self, player_name):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                matches = db.query(Match).filter((Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
+                matches = db.query(Match).filter(
+                    (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
                 all_matches = [{'match_id': match.id,
                                 'player1': match.player1.name,
                                 'player2': match.player2.name,
@@ -91,3 +101,5 @@ class MatchManager:
             # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
             # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
+
+
