@@ -1,8 +1,8 @@
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from src.model.database import engine, Session
+from src.db_models.database import engine, Session
 from src.errors import ErrorResponse, DatabaseErrorException
-from src.model.models import Player, Match
+from src.db_models.models import Player, Match
 
 
 class PlayerManager:

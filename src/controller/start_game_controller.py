@@ -3,7 +3,7 @@ from urllib.parse import parse_qs
 from paste.translogger import TransLogger
 
 from src.errors import InvalidPlayernameError, ErrorResponse
-from src.db_model import PlayerManager
+from src.dao.config import PlayerManager
 
 
 def application(environ, start_response):
@@ -20,6 +20,7 @@ def application(environ, start_response):
         status = '200 OK'
         if player1 and player2:
             if PlayerManager.is_valid_username(player1) and PlayerManager.is_valid_username(player2):
+                pass
 
         else:
             error_response = InvalidPlayernameError()
