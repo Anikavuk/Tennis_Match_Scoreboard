@@ -1,54 +1,27 @@
-from waitress import serve
-from urllib.parse import parse_qs
-from paste.translogger import TransLogger
+from src.errors import ErrorResponse, InvalidPlayernameError, IntegrityError
+from src.dao.player_DAO import PlayerDAO
+from src.controller.base_controller import BaseController
 
-from src.errors import InvalidPlayernameError, ErrorResponse
-from src.dao.config import PlayerManager
+class StartGame(BaseController):
 
+    def do_POST(self, form):
+        try:
+            # проверка на None, если False
+            players_names = {key: form.get(key)[0] if form.get(key) else None for key in ['player1', 'player2']}
+            if not all(players_names.values()):
+                raise InvalidPlayernameError()
 
-def application(environ, start_response):
+            # проверка на валидацию
+            players_valid = {key: value for key, value in players_names.items() if PlayerDAO.is_valid_username(value)}
+            if not players_valid or ('player1' not in players_valid or 'player2' not in players_valid):
+                raise InvalidPlayernameError()
 
-    if environ['REQUEST_METHOD'] == 'POST' and environ['PATH_INFO'] == '/new-match':
-
-        content_length = int(environ.get('CONTENT_LENGTH', 0))
-        body = environ['wsgi.input'].read(content_length).decode('utf-8')
-
-        form = parse_qs(body) # {'player1': ['Боб'], 'player2': ['Джек']}
-
-        player1 = form.get('player1')
-        player2 = form.get('player2')
-        status = '200 OK'
-        if player1 and player2:
-            if PlayerManager.is_valid_username(player1) and PlayerManager.is_valid_username(player2):
-                pass
-
-        else:
-            error_response = InvalidPlayernameError()
-            response_body = error_response.message
-            status = ErrorResponse.error_response(exception=InvalidPlayernameError)
-
-
-
-        # response_body = f"{player1} {player2}".encode('utf-8')    # TODO: Исправить ответ на запрос
-
-
-        headers = [('Content-Type', 'text/plain; charset=utf-8'),
-                   ('Content-Length', str(len(response_body)))]
-        start_response(status, headers)
-            # TODO: добавить метод в сохранения имени в бд, проверка имени?
-
-        return [response_body]
-
-    else:
-        response_body = b'Not Found'
-        status = '404 Not Found'
-        headers = [('Content-Type', 'text/plain'),
-                   ('Content-Length', str(len(response_body)))]
-        start_response(status, headers)
-        return [response_body]
-
-
-# Запускаем сервер с использованием Waitress
-if __name__ == '__main__':
-    serve(TransLogger(application, setup_console_handler=False))
-    serve(application, host='0.0.0.0', port=8080)
+            players_save = {key: value for key, value in players_valid.items() if PlayerDAO.save_player(value)}
+            response_body = f"Имена игроков успешно сохранились!".encode('utf-8')
+            if not players_save:
+                raise IntegrityError()
+            return [response_body]
+        except InvalidPlayernameError:
+            return ErrorResponse.error_response(exception=InvalidPlayernameError)
+        except IntegrityError:
+            return ErrorResponse.error_response(exception=IntegrityError)
