@@ -3,20 +3,17 @@ from sqlalchemy.exc import IntegrityError
 
 class IntegrityError(Exception): # дубликат имени в бд
     def __init__(self, message='You need to enter a different, unique nameone'):
-
-        # Похоже, что имя, которое вы пытаетесь использовать, уже занято.
-        # Чтобы продолжить, вам нужно ввести другое, уникальное имя
-
+        # Вам нужно ввести другое, уникальное имя
         self.message = message
         super().__init__(self.message)
 
 class DatabaseErrorException(Exception):
-    def __init__(self, message="База данных недоступна"):
+    def __init__(self, message="The database is unavailable"):
         self.message = message
         super().__init__(self.message)
 
 class InvalidPlayernameError(Exception):
-    def __init__(self, message="Введите имя"):
+    def __init__(self, message="Enter the letter name of the player"):
         self.message = message
         super().__init__(self.message)
 
@@ -34,7 +31,7 @@ class ErrorResponse:
             error_message = "База данных недоступна"
         elif isinstance(exception, InvalidPlayernameError):
             error_code = 400
-            error_message = "Введите имя"
+            error_message = "Введите буквенное имя"
         # elif isinstance(exception, IndexError):
         #     error_code = 404
         #     error_message = "Обменный курс для пары не найден"
@@ -60,3 +57,6 @@ class ErrorResponse:
         #         error_code = 400
         #         error_message = "Коды валютной пары отсутствуют в адресе"
         return {error_code: error_message}
+
+uuu = ErrorResponse()
+print(uuu.error_response(exception=InvalidPlayernameError()))

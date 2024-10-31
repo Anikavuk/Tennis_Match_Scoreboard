@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from src.model.models import Player, Match  # noqa
+from src.db_models.models import Player, Match  # noqa
 
 from src.db_models.models import Base
 

@@ -9,19 +9,20 @@ class PlayerDAO:
     def __init__(self, name):
         self.name = name
 
-    def save_player(self):
+    @staticmethod
+    def save_player(players_name):
         try:
             with Session(autoflush=False, bind=engine) as db:
-                player = Player(name=self.name)
+                player = Player(name=players_name)
                 db.add(player)
                 db.commit()
+            return True
         except IntegrityError:
-            # print('You need to enter a different, unique nameone')
-            # db.rollback()
-            # здесь нужна ошибка дубликата имени, если в базе данных есть имя , то не сохранять
-            return ErrorResponse.error_response(exception=IntegrityError())
+            db.rollback()
+            return False
 
     def get_all_players(self):
+        """ Выгрузка всех игроков"""
         try:
             with Session(autoflush=False, bind=engine) as db:
                 players = db.query(Player).all()
@@ -29,12 +30,11 @@ class PlayerDAO:
                 return all_players
 
         except OperationalError:
-            # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
-            # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
-
-    def is_valid_username(self):
-        for letter in self.name:
+    @staticmethod
+    def is_valid_username(name):
+        """Проверка на валидацию введенного имени"""
+        for letter in name:
             if not ((65 <= ord(letter) <= 90) or
                     (97 <= ord(letter) <= 122) or
                     (1040 <= ord(letter) <= 1103)):

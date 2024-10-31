@@ -1,27 +1,38 @@
-from src.errors import ErrorResponse, InvalidPlayernameError, IntegrityError
-from src.dao.player_DAO import PlayerDAO
 from src.controller.base_controller import BaseController
+from src.dao.player_DAO import PlayerDAO
+from src.errors import ErrorResponse, InvalidPlayernameError, IntegrityError
+
 
 class StartGame(BaseController):
 
     def do_POST(self, form):
         try:
-            # проверка на None, если False
+            # Проверка на None
             players_names = {key: form.get(key)[0] if form.get(key) else None for key in ['player1', 'player2']}
             if not all(players_names.values()):
-                raise InvalidPlayernameError()
+                raise InvalidPlayernameError
 
-            # проверка на валидацию
-            players_valid = {key: value for key, value in players_names.items() if PlayerDAO.is_valid_username(value)}
+            # Проверка на валидацию
+            players_valid = {key: True for key, value in players_names.items() if PlayerDAO.is_valid_username(value)}
             if not players_valid or ('player1' not in players_valid or 'player2' not in players_valid):
-                raise InvalidPlayernameError()
+                raise InvalidPlayernameError
 
-            players_save = {key: value for key, value in players_valid.items() if PlayerDAO.save_player(value)}
-            response_body = f"Имена игроков успешно сохранились!".encode('utf-8')
-            if not players_save:
-                raise IntegrityError()
-            return [response_body]
+            # Проверка на дубликат в db
+            players_save = {}
+            for key, value in players_names.items():
+                if PlayerDAO.save_player(value):
+                    players_save[key] = True
+                else:
+                    raise IntegrityError
+
+            response_body = "The names of the players have been successfully saved"
+            return response_body
         except InvalidPlayernameError:
-            return ErrorResponse.error_response(exception=InvalidPlayernameError)
+            return ErrorResponse.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
-            return ErrorResponse.error_response(exception=IntegrityError)
+            return ErrorResponse.error_response(exception=IntegrityError())
+
+
+# llll = StartGame()
+# form = {'player1': ['Максppp'], 'player2': ['Дарhhhhья']}
+# print(llll.do_POST(form))
