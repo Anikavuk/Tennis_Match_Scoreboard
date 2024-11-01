@@ -14,14 +14,18 @@ def application(environ, start_response):
         start_game = StartGame()
         response = start_game.do_POST(form) # {400: 'You need to enter a different, unique nameone'}
 
-        if type(response) == dict:
-            status = list(response.keys())[0]
-            response_body = list(response.values())[0]
+        if isinstance(response, dict):
+            status = str(list(response.keys())[0])
+            error_message = (list(response.values()))[0]
+            response_body = error_message.encode('utf-8')
+
         else:
             status = '200 OK'
             response_body = response.encode('utf-8')
+
         headers = [('Content-Type', 'text/plain; charset=utf-8'),
                    ('Content-Length', str(len(response_body)))]
+
         start_response(status, headers)
 
         return [response_body]

@@ -58,5 +58,3 @@ class ErrorResponse:
         #         error_message = "Коды валютной пары отсутствуют в адресе"
         return {error_code: error_message}
 
-uuu = ErrorResponse()
-print(uuu.error_response(exception=InvalidPlayernameError()))

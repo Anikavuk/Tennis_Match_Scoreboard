@@ -31,8 +31,3 @@ class StartGame(BaseController):
             return ErrorResponse.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
             return ErrorResponse.error_response(exception=IntegrityError())
-
-
-# llll = StartGame()
-# form = {'player1': ['Максppp'], 'player2': ['Дарhhhhья']}
-# print(llll.do_POST(form))
