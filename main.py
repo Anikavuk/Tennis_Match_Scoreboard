@@ -1,7 +1,10 @@
 from waitress import serve
 from paste.translogger import TransLogger
+import logging
+logger = logging.getLogger('waitress')
+logger.setLevel(logging.ERROR)
 
-from src.controller.start_game_controller import application
+from src.server import application
 
 
 if __name__ == '__main__':
