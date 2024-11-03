@@ -7,13 +7,13 @@ import os
 def application(environ, start_response):
     if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/':
         # environ['PATH_INFO'] == '/':  # Обработка главной страницы
-        response_body = render_template('start.html')
+        response_body = render_template('start.html').encode('utf-8')
         headers = [('Content-Type', 'text/html', 'charset=utf-8'),
                    ('Content-Length', str(len(response_body)))]
         status = '200'
         # headers.append(('Content-Length', str(len(response_body))))
         start_response(status, headers)
-        return [response_body.encode('utf-8')]
+        return [response_body]
 
 
     if environ['REQUEST_METHOD'] == 'POST' and environ['PATH_INFO'] == '/new-match':

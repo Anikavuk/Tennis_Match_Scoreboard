@@ -2,7 +2,7 @@
 POST http://localhost:8080/new-match
 Content-Type: application/x-www-form-urlencoded
 
-player1=Грш&player2=Фрш
+player1=Гршгг&player2=Фршгг
 
 ### дубликат
 POST http://localhost:8080/new-match

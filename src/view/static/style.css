@@ -14,10 +14,7 @@ h1 {
 }
 
 body {
-}
-
-body {
-    background-image: url('../static/fon_foto.jpg');
+    background-image: url('fon_foto.jpg');
 }
 
 .header {
