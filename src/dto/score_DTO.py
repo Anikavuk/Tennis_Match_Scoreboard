@@ -4,8 +4,8 @@ class ScoreDTO:
         :@param set_2: set игрока 2
         :@param game_1: game игрока 1
         :@param game_2: game игрока 2
-        :@param points: points игрока 1
-        :@param points: points игрока 2
+        :@param points_1: points игрока 1
+        :@param points_2: points игрока 2
         """
 
     def __init__(self, set_1, set_2, game_1, game_2 ,points_1, points_2):

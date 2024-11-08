@@ -3,5 +3,5 @@
 __pycache__/
 src/.env
 poetry.lock
-archive
-materials
+archive.zip
+materials.py
