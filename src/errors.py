@@ -1,5 +1,3 @@
-from sqlalchemy.exc import IntegrityError
-
 
 class IntegrityError(Exception):
     def __init__(self, message='You need to enter a different, unique nameone'):

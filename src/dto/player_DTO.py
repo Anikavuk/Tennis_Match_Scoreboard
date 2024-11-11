@@ -1,13 +1,14 @@
-class PlayerDTO:
-    """Класс шаблон DTO для единного вида выгрузки игрока"""
+from dataclasses import dataclass
 
-    def __init__(self,name, id=None):
-        """ 
-        :@param id: id игрока
-        @param name: имя игрока
-        """
-        self.id = id
-        self.name = name
+
+@dataclass
+class PlayerDTO:
+    """Класс шаблон DTO для выгрузки игрока
+    :@param id: id игрока
+    :@param name: имя игрока
+    """
+    id: int
+    name: str
 
     def to_dict(self) -> object:
         """Метод возвращает словарь с данными игрока"""
