@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/style.css">
     <title>New match</title>
     <h1>New match</h1>
@@ -16,18 +17,14 @@
         <input type="text" id="player2" name="player2"required>
         <br><br>
         <div class="button-container">
-            <button>
-                <span><a href="match_score">Start</a></span>
+            <button type="submit" id="startButton" onclick="window.location.href='/match_score'">
+                <span>Start</span>
             </button>
-            <button>
-                <span><a href="start">Home</a></span>
+            <button type="button" onclick="window.location.href='/start'">
+                <span>Home</span>
             </button>
         </div>
-
     </form>
-
-
 </div>
 </body>
-
 </html>

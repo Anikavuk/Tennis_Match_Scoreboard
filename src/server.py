@@ -4,7 +4,14 @@ from src.view.jinja_engine import render_template
 
 def application(environ, start_response):
     if environ['PATH_INFO'] == '/':
-        response_body = render_template('start.html').encode('utf-8')
+        response_body = render_template('index.html').encode('utf-8')
+        headers = [('Content-Type', 'text/html')]
+        status = '200'
+        start_response(status, headers)
+        return [response_body]
+
+    if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/new-match':
+        response_body = render_template('new-match.html').encode('utf-8')
         headers = [('Content-Type', 'text/html')]
         status = '200'
         start_response(status, headers)
