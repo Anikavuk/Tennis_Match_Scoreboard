@@ -6,26 +6,27 @@ from src.errors import ErrorResponse, DatabaseErrorException
 
 class MatchDAO:
 
-    def save_match(self):
+    @staticmethod
+    def save_match(player1_id, player2_id):
         try:
+            # сохранение матча
             with Session(autoflush=False, bind=engine) as db:
-                match = Match(player1_id=self.player1_id,
-                              player2_id=self.player2_id,
-                              winner_id=self.winner_id,
-                              score=self.score)
+                match = Match(player1_id=player1_id,
+                              player2_id=player2_id, winner_id=None)
                 db.add(match)
                 db.commit()
+            return True
         except IntegrityError:
-            return ErrorResponse.error_response(exception=IntegrityError())
+            db.rollback()
+            return False
 
     def get_all_matches(self):
         try:
-
+            # выгружает все матчи
             with (Session(autoflush=False, bind=engine) as bd):
                 matches_query = bd.query(Match)
                 results = matches_query.all()
 
-                # Форматируем результаты для удобства
                 matches = []
                 for match in results:
                     matches.append({
@@ -58,3 +59,8 @@ class MatchDAO:
             # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
             # то исключение OperationalError выбрала или не то
             return ErrorResponse.error_response(exception=DatabaseErrorException())
+
+
+
+fff = MatchDAO()
+fff.save_match(164, 161)

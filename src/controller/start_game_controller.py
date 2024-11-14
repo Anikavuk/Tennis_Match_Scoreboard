@@ -3,9 +3,9 @@ from src.dao.player_DAO import PlayerDAO
 from src.errors import ErrorResponse, InvalidPlayernameError, IntegrityError
 
 
-class StartGame(BaseController):
+class PlayerHandler(BaseController):
 
-    def do_POST(self, form):
+    def start_game_handler(self, form):
         try:
             # Проверка на None
             players_names = {key: form.get(key)[0] if form.get(key) else None for key in ['player1', 'player2']}
