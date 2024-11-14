@@ -1,6 +1,6 @@
 
 class IntegrityError(Exception):
-    def __init__(self, message='You need to enter a different, unique nameone'):
+    def __init__(self, message='You need to enter a different, unique name'):
         # Вам нужно ввести другое, уникальное имя
         self.message = message
         super().__init__(self.message)
