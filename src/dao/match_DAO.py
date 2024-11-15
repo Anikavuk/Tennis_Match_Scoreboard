@@ -1,66 +1,61 @@
-from sqlalchemy.exc import IntegrityError, OperationalError
 from src.db_models.database import engine, Session
 from src.db_models.models import Match
-from src.errors import ErrorResponse, DatabaseErrorException
+from src.errors import BaseAPIException, DatabaseErrorException
 
 
 class MatchDAO:
 
     @staticmethod
-    def save_match(player1_id, player2_id):
-        try:
-            # сохранение матча
-            with Session(autoflush=False, bind=engine) as db:
-                match = Match(player1_id=player1_id,
-                              player2_id=player2_id, winner_id=None)
-                db.add(match)
-                db.commit()
+    def save_current_match(player1_id, player2_id):
+        """сохранение текущего матча"""
+        with Session(autoflush=False, bind=engine) as db:
+            match = Match(player1_id=player1_id, player2_id=player2_id)
+            db.add(match)
+            db.commit()
             return True
-        except IntegrityError:
-            db.rollback()
-            return False
+
+    @staticmethod
+    def update_match(uuid, winner, score):
+        """изменение сохраненного матча"""
+        with Session(autoflush=False, bind=engine) as db:
+            match =db.query(Match).filter(Match.uuid==uuid).first()
+            match.winner_id=winner
+            match.score = score
+            db.commit()
+            return True
+
 
     def get_all_matches(self):
-        try:
-            # выгружает все матчи
-            with (Session(autoflush=False, bind=engine) as bd):
-                matches_query = bd.query(Match)
-                results = matches_query.all()
+        """выгрузка всех матчей"""
+        with (Session(autoflush=False, bind=engine) as bd):
+            matches_query = bd.query(Match)
+            results = matches_query.all()
 
-                matches = []
-                for match in results:
-                    matches.append({
-                        'match_id': match.id,
-                        'player1': match.player1.name,
-                        'player2': match.player2.name,
-                        'winner': match.winner.name,
-                        'score': match.score
-                    })
+            matches = []
+            for match in results:
+                matches.append({
+                    'match_id': match.id,
+                    'player1': match.player1.name,
+                    'player2': match.player2.name,
+                    'winner': match.winner.name,
+                    'score': match.score
+                })
 
-                return matches
-        except OperationalError:
-            # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
-            # то исключение OperationalError выбрала или не то
-            return ErrorResponse.error_response(exception=DatabaseErrorException())
+            return matches
 
     def list_player_matches(self, player_name):
-        try:
-            with Session(autoflush=False, bind=engine) as db:
-                matches = db.query(Match).filter(
-                    (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
-                all_matches = [{'match_id': match.id,
-                                'player1': match.player1.name,
-                                'player2': match.player2.name,
-                                'winner': match.winner.name,
-                                'score': match.score}
-                               for match in matches]
-                return all_matches
-        except OperationalError:
-            # Алсу!Проверить ошибку недоступности базы данных в sqlalchemy!!!
-            # то исключение OperationalError выбрала или не то
-            return ErrorResponse.error_response(exception=DatabaseErrorException())
-
+        """выгрузка всех матчей с определенным игроком"""
+        with Session(autoflush=False, bind=engine) as db:
+            matches = db.query(Match).filter(
+                (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
+            all_matches = [{'match_id': match.id,
+                            'player1': match.player1.name,
+                            'player2': match.player2.name,
+                            'winner': match.winner.name,
+                            'score': match.score}
+                           for match in matches]
+            return all_matches
 
 
 fff = MatchDAO()
-fff.save_match(164, 161)
+fff.update_match('06b10163-c9ab-4cd4-9d1d-62b704a44b4b', 159, {2:2})

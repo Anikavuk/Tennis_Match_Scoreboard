@@ -1,6 +1,6 @@
 from src.controller.base_controller import BaseController
 from src.dao.player_DAO import PlayerDAO
-from src.errors import ErrorResponse, InvalidPlayernameError, IntegrityError
+from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError
 
 
 class PlayerHandler(BaseController):
@@ -28,6 +28,6 @@ class PlayerHandler(BaseController):
             response_body = "The names of the players have been successfully saved"
             return response_body
         except InvalidPlayernameError:
-            return ErrorResponse.error_response(exception=InvalidPlayernameError())
+            return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
-            return ErrorResponse.error_response(exception=IntegrityError())
+            return BaseAPIException.error_response(exception=IntegrityError())

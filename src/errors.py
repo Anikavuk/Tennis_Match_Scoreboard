@@ -16,7 +16,7 @@ class InvalidPlayernameError(Exception):
         super().__init__(self.message)
 
 
-class ErrorResponse:
+class BaseAPIException:
     @classmethod
     def error_response(cls, exception: Exception):
         error_code = 200

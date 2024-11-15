@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from src.db_models.database import engine, Session
 from src.db_models.models import Player
-from src.errors import ErrorResponse, DatabaseErrorException
+from src.errors import BaseAPIException, DatabaseErrorException
 
 
 class PlayerDAO:
@@ -30,7 +30,7 @@ class PlayerDAO:
                 return all_players
 
         except OperationalError:
-            return ErrorResponse.error_response(exception=DatabaseErrorException())
+            return BaseAPIException.error_response(exception=DatabaseErrorException())
     @staticmethod
     def is_valid_username(name):
         """Проверка на валидацию введенного имени"""
