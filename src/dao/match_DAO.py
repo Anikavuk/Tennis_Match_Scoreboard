@@ -1,6 +1,5 @@
 from src.db_models.database import engine, Session
 from src.db_models.models import Match
-from src.errors import BaseAPIException, DatabaseErrorException
 
 
 class MatchDAO:
