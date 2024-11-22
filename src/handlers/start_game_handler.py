@@ -1,6 +1,6 @@
-from src.controller.base_controller import BaseController
 from src.dao.player_DAO import PlayerDAO
 from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError
+from src.handlers.base_handler import BaseController
 
 
 class PlayerHandler(BaseController):
@@ -20,13 +20,13 @@ class PlayerHandler(BaseController):
             # Проверка на дубликат в db
             players_save = {}
             for key, value in players_names.items():
-                if PlayerDAO.save_player(value):
-                    players_save[key] = True
+                player_id = PlayerDAO.save_player(value)
+                if type(player_id) == int:
+                    players_save[player_id] = value
                 else:
                     raise IntegrityError
 
-            response_body = "The names of the players have been successfully saved"
-            return response_body
+            return players_save  # {184: 'qyрrr', 185: 'aeгrrr'}
         except InvalidPlayernameError:
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:

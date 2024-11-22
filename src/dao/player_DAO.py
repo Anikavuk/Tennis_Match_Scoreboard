@@ -16,7 +16,7 @@ class PlayerDAO:
                 player = Player(name=players_name)
                 db.add(player)
                 db.commit()
-            return True
+                return player.id
         except IntegrityError:
             db.rollback()
             return False
@@ -37,6 +37,6 @@ class PlayerDAO:
         for letter in name:
             if not ((65 <= ord(letter) <= 90) or
                     (97 <= ord(letter) <= 122) or
-                    (1040 <= ord(letter) <= 1103)):
+                    (1040 <= ord(letter) <= 1103) or (ord(letter) == 32)):
                 return False
         return True

@@ -9,19 +9,17 @@
     <link rel="icon" href="data:,">
 </head>
 <body>
-    <h1> Tennis score board </h1>
-    <nav class="header">
-
+<h1> Tennis score board </h1>
+<nav class="header">
     <div>
-        <button class="button_menu">
-            <span><a id="new-match" onclick="window.location.href='/new-match'">New match</a></span>
-        </button>
-        <button class="button_menu">
-            <span><a id="finished_matches" onclick="window.location.href='/match_finished'">Matches</a></span>
-        </button>
+        <form action="/new-match" method="get" style="display: inline;">
+            <button type="submit" class="button_menu">New match</button>
+        </form>
+        <form action="/match_finished" method="get" style="display: inline;">
+            <button type="submit" class="button_menu">Matches</button>
+        </form>
     </div>
     <div></div>
-
-    </nav>
+</nav>
 </body>
 </html>

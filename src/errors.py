@@ -1,17 +1,16 @@
 
 class IntegrityError(Exception):
-    def __init__(self, message='You need to enter a different, unique name'):
-        # Вам нужно ввести другое, уникальное имя
+    def __init__(self, message='Вам нужно ввести другое, уникальное имя'):
         self.message = message
         super().__init__(self.message)
 
 class DatabaseErrorException(Exception):
-    def __init__(self, message="The database is unavailable"):
+    def __init__(self, message="База данных недоступна"):
         self.message = message
         super().__init__(self.message)
 
 class InvalidPlayernameError(Exception):
-    def __init__(self, message="Enter the letter name of the player"):
+    def __init__(self, message="Введите буквенное имя"):
         self.message = message
         super().__init__(self.message)
 

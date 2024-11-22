@@ -11,7 +11,7 @@ class MatchDAO:
             match = Match(player1_id=player1_id, player2_id=player2_id)
             db.add(match)
             db.commit()
-            return True
+            return match.uuid
 
     @staticmethod
     def update_match(uuid, winner, score):
@@ -55,6 +55,9 @@ class MatchDAO:
                            for match in matches]
             return all_matches
 
+    def get_match_by_uuid_with_names(self, uuid):
+        """выгрузка имен игроков по uuid матча"""
+        with Session(autoflush=False, bind=engine) as db:
+            matches = db.query(Match).filter(Match.uuid==uuid).first()
+            return matches.player1.name, matches.player2.name
 
-fff = MatchDAO()
-fff.update_match('06b10163-c9ab-4cd4-9d1d-62b704a44b4b', 159, {2:2})
