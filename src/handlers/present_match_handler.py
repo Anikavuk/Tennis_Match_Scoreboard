@@ -4,8 +4,10 @@ from src.handlers.base_handler import BaseController
 
 
 class MatchRegistrationHandler(BaseController):
-
-    def get_match_uuid_by_player_ids(self, form):
+    """
+    Контроллер-обработчик '/new-match'
+    """
+    def get_match_uuid_by_player_ids(self, form: dict):
         try:
             players_id_1 = [id_player for id_player in form.keys()][0]
             players_id_2 = [id_player for id_player in form.keys()][1]

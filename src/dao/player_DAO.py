@@ -10,7 +10,8 @@ class PlayerDAO:
         self.name = name
 
     @staticmethod
-    def save_player(players_name):
+    def save_player(players_name: str):
+        """Сохранение имени игрока в базе данных"""
         try:
             with Session(autoflush=False, bind=engine) as db:
                 player = Player(name=players_name)
@@ -18,8 +19,10 @@ class PlayerDAO:
                 db.commit()
                 return player.id
         except IntegrityError:
-            db.rollback()
-            return False
+            with Session(autoflush=False, bind=engine) as db:
+                player = db.query(Player).filter(Player.name == players_name).first()
+                db.commit()
+                return player.id
 
     def get_all_players(self):
         """ Выгрузка всех игроков"""
@@ -32,7 +35,7 @@ class PlayerDAO:
         except OperationalError:
             return BaseAPIException.error_response(exception=DatabaseErrorException())
     @staticmethod
-    def is_valid_username(name):
+    def is_valid_username(name: str):
         """Проверка на валидацию введенного имени"""
         for letter in name:
             if not ((65 <= ord(letter) <= 90) or

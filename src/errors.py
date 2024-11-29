@@ -3,7 +3,10 @@ class IntegrityError(Exception):
     def __init__(self, message='Вам нужно ввести другое, уникальное имя'):
         self.message = message
         super().__init__(self.message)
-
+class SameNamesError(Exception):
+    def __init__(self, message='Вы ввели одинаковые имена, а надо разные:)'):
+        self.message = message
+        super().__init__(self.message)
 class DatabaseErrorException(Exception):
     def __init__(self, message="База данных недоступна"):
         self.message = message
@@ -29,5 +32,8 @@ class BaseAPIException:
         elif isinstance(exception, InvalidPlayernameError):
             error_code = 400
             error_message = "Введите буквенное имя"
+        elif isinstance(exception, SameNamesError):
+            error_code = 400
+            error_message = "Вы ввели одинаковые имена, а надо разные"
         return {error_code: error_message}
 

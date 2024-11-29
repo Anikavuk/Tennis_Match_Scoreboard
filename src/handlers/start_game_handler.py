@@ -1,11 +1,14 @@
 from src.dao.player_DAO import PlayerDAO
-from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError
+from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError, SameNamesError
 from src.handlers.base_handler import BaseController
 
 
 class PlayerHandler(BaseController):
+    """
+    Контроллер-обработчик '/new-match'
+    """
 
-    def start_game_handler(self, form):
+    def start_game_handler(self, form: dict):
         try:
             # Проверка на None
             players_names = {key: form.get(key)[0] if form.get(key) else None for key in ['player1', 'player2']}
@@ -24,9 +27,9 @@ class PlayerHandler(BaseController):
                 if type(player_id) == int:
                     players_save[player_id] = value
                 else:
-                    raise IntegrityError
+                    raise SameNamesError
 
-            return players_save  # {184: 'qyрrr', 185: 'aeгrrr'}
+            return players_save
         except InvalidPlayernameError:
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:

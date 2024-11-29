@@ -2,48 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msapplication-config" content="none">
     <link rel="stylesheet" href="../static/style.css">
-    <title>Finished matches</title>
+    <link rel="icon" href="data:,">
+    <title>Matches</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Finished matches</h1>
-        <div class="search-container">
-            <label for="name-input"></label>
-            <input type="text" id="name-input" placeholder="Enter player name">
-            <button class="search-button">Search</button>
-            <button class="clear-button">Clear</button>
-        </div>
-        <div class="table-container">
-            <div class="table-row">
-                <div class="table-cell">ID</div>
-                <div class="table-cell">Player 1</div>
-                <div class="table-cell">Player 2</div>
-                <div class="table-cell">Winner</div>
-            </div>
-            <div class="table-row">
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-            </div>
-            <div class="table-row">
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-                <div class="table-cell"></div>
-            </div>
-        </div>
-        <div class="pagination">
-            <button class="prev-button">Prev</button>
-            <span class="page-info"></span>
-            <button class="next-button">Next</button>
-        </div>
-        <div class="back">
-            <button>
-                <span><a href="index">Home</a></span>
-            </button>
-        </div>
+<div class="container">
+    <h1>Finished matches</h1>
+    <div class="search-container">
+        <label for="name-input"></label>
+        <input type="text" id="name-input" placeholder="Enter player name">
+        <button class="search-button">Search</button>
+        <button class="clear-button">Clear</button>
+        <button class="button" onclick="window.location.href='/'">
+            <span>Home</span>
     </div>
+    <div class="table-container">
+        <div class="table-row">
+            <div class="table-cell">ID</div>
+            <div class="table-cell">Player 1</div>
+            <div class="table-cell">Player 2</div>
+            <div class="table-cell">Winner</div>
+        </div>
+        {% for match in matches %}
+        <div class="table-row">
+            <div class="table-cell">{{match.match_id}}</div>
+            <div class="table-cell">{{match.player1}}</div>
+            <div class="table-cell">{{match.player2}}</div>
+            <div class="table-cell">{{match.winner}}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="pagination">
+        <button class="prev-button">Prev</button>
+        <span class="page-info"></span>
+        <button class="next-button">Next</button>
+    </div>
+</div>
 </body>
 </html>

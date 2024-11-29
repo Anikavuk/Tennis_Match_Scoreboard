@@ -1,9 +1,11 @@
 from urllib.parse import parse_qs, urlencode
-
+from src.errors import SameNamesError
 from src.handlers.match_score_handler import CurrentMatchHandler
 from src.handlers.present_match_handler import MatchRegistrationHandler
 from src.handlers.start_game_handler import PlayerHandler
+from src.handlers.all_matches_handler import FinishedMatchesHandler
 from src.view.jinja_engine import render_template
+
 
 
 def application(environ, start_response):
@@ -26,28 +28,50 @@ def application(environ, start_response):
         body = environ['wsgi.input'].read(content_length).decode('utf-8')
 
         form = parse_qs(body)  # {'player1': ['Гршгг'], 'player2': ['Фршгг']}
-        names_of_players = PlayerHandler()  # <src.handlers.start_game_handler.PlayerHandler object at 0x0000024C54FC2B50>
-        response = names_of_players.start_game_handler(form)  # {184: 'qyрrr', 185: 'aeгrrr'}
-
-        if len(response) == 1:
-            error_message = (list(response.values()))[0]
-            query_string = urlencode({'error': error_message})  # 'error=You+need+to+enter+a+different%2C+unique+name'
+        if form['player1'] == form['player2']:
+            error_response = SameNamesError()
+            error_message = error_response.message
+            query_string = urlencode(
+                {'error': error_message})  # 'error=You+need+to+enter+a+different%2C+unique+name'
 
             headers = [('Location', '/messages?' + query_string),
                        ('Content-Type', 'text/plain; charset=utf-8'),
                        ('Content-Length', '0')]
             start_response('302 Found', headers)
             return []
-        if len(response) > 1:
-            new_match = MatchRegistrationHandler()
-            new_match_uuid = new_match.get_match_uuid_by_player_ids(response)
-            query_string = urlencode({'uuid': new_match_uuid})
 
-            headers = [('Location', '/match-score?' + query_string),
-                       ('Content-Type', 'text/plain; charset=utf-8'),
-                       ('Content-Length', '0')]
-            start_response('302 Found', headers)
-            return []
+        else:
+            names_of_players = PlayerHandler()  # <src.handlers.start_game_handler.PlayerHandler object at 0x0000024C54FC2B50>
+            response = names_of_players.start_game_handler(form)  # {184: 'qyрrr', 185: 'aeгrrr'}
+
+            if len(response) == 1:
+                error_message = (list(response.values()))[0]
+                query_string = urlencode(
+                    {'error': error_message})  # 'error=You+need+to+enter+a+different%2C+unique+name'
+
+                headers = [('Location', '/messages?' + query_string),
+                           ('Content-Type', 'text/plain; charset=utf-8'),
+                           ('Content-Length', '0')]
+                start_response('302 Found', headers)
+                return []
+            if len(response) > 1:
+                new_match = MatchRegistrationHandler()
+                new_match_uuid = new_match.get_match_uuid_by_player_ids(response)
+                query_string = urlencode({'uuid': new_match_uuid})
+
+                headers = [('Location', '/match-score?' + query_string),
+                           ('Content-Type', 'text/plain; charset=utf-8'),
+                           ('Content-Length', '0')]
+                start_response('302 Found', headers)
+                return []
+    if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/matches':
+        all_matches_obj = FinishedMatchesHandler()
+        all_matches = all_matches_obj.get_all_matсhes()
+        response_body = render_template('matches.html', matches=all_matches).encode('utf-8')
+        headers = [('Content-Type', 'text/html; charset=utf-8'),
+              ('Content-Length', str(len(response_body)))]
+        start_response('200 OK', headers)
+        return [response_body]
 
 
     elif environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/messages':
@@ -82,3 +106,8 @@ def application(environ, start_response):
         headers = [('Content-Type', 'text/html')]
         start_response(status, headers)
         return [response_body]
+
+
+
+page_number = 3
+filter_by_player_name = 'player_name'
