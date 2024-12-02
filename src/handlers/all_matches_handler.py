@@ -1,11 +1,13 @@
 from src.dao.match_DAO import MatchDAO
 from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError
+from src.dto.match_DTO import MatchDTO
 
 
 class FinishedMatchesHandler:
     """
     Контроллер-обработчик '/matches'
     """
+
     def get_all_matсhes(self):
         try:
             match_dao = MatchDAO()
@@ -16,3 +18,7 @@ class FinishedMatchesHandler:
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
             return BaseAPIException.error_response(exception=IntegrityError())
+
+
+# fff = FinishedMatchesHandler()
+# print(fff.get_all_matсhes())

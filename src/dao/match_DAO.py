@@ -59,4 +59,5 @@ class MatchDAO:
         """выгрузка имен игроков по uuid матча"""
         with Session(autoflush=False, bind=engine) as db:
             matches = db.query(Match).filter(Match.uuid == uuid).first()
-            return matches.player1.name, matches.player2.name
+            list_of_players = {matches.player1.id:matches.player1.name, matches.player2.id:matches.player2.name}
+            return list_of_players

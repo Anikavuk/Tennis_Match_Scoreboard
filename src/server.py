@@ -27,12 +27,11 @@ def application(environ, start_response):
         content_length = int(environ.get('CONTENT_LENGTH', 0))
         body = environ['wsgi.input'].read(content_length).decode('utf-8')
 
-        form = parse_qs(body)  # {'player1': ['Гршгг'], 'player2': ['Фршгг']}
+        form = parse_qs(body)
         if form['player1'] == form['player2']:
             error_response = SameNamesError()
             error_message = error_response.message
-            query_string = urlencode(
-                {'error': error_message})  # 'error=You+need+to+enter+a+different%2C+unique+name'
+            query_string = urlencode({'error': error_message})
 
             headers = [('Location', '/messages?' + query_string),
                        ('Content-Type', 'text/plain; charset=utf-8'),
@@ -41,22 +40,20 @@ def application(environ, start_response):
             return []
 
         else:
-            names_of_players = PlayerHandler()  # <src.handlers.start_game_handler.PlayerHandler object at 0x0000024C54FC2B50>
-            response = names_of_players.start_game_handler(form)  # {184: 'qyрrr', 185: 'aeгrrr'}
+            names_of_players = PlayerHandler()
+            match_data = names_of_players.start_game_handler(form) # [PlayerDTO(id=268, name='Миша'), PlayerDTO(id=269, name='Маша')]
 
-            if len(response) == 1:
-                error_message = (list(response.values()))[0]
-                query_string = urlencode(
-                    {'error': error_message})  # 'error=You+need+to+enter+a+different%2C+unique+name'
-
+            if len(match_data) == 1:
+                error_message = (list(match_data.values()))[0]
+                query_string = urlencode({'error': error_message})
                 headers = [('Location', '/messages?' + query_string),
                            ('Content-Type', 'text/plain; charset=utf-8'),
                            ('Content-Length', '0')]
                 start_response('302 Found', headers)
                 return []
-            if len(response) > 1:
+            if len(match_data) > 1:
                 new_match = MatchRegistrationHandler()
-                new_match_uuid = new_match.get_match_uuid_by_player_ids(response)
+                new_match_uuid = new_match.get_match_uuid_by_player_ids(match_data)
                 query_string = urlencode({'uuid': new_match_uuid})
 
                 headers = [('Location', '/match-score?' + query_string),
@@ -65,9 +62,9 @@ def application(environ, start_response):
                 start_response('302 Found', headers)
                 return []
     if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/matches':
-        all_matches_obj = FinishedMatchesHandler()
-        all_matches = all_matches_obj.get_all_matсhes()
-        response_body = render_template('matches.html', matches=all_matches).encode('utf-8')
+        finished_matches_handler = FinishedMatchesHandler()
+        finished_matches = finished_matches_handler.get_all_matсhes()
+        response_body = render_template('matches.html', matches=finished_matches).encode('utf-8')
         headers = [('Content-Type', 'text/html; charset=utf-8'),
               ('Content-Length', str(len(response_body)))]
         start_response('200 OK', headers)
@@ -90,11 +87,12 @@ def application(environ, start_response):
         query_string = environ.get('QUERY_STRING', '')
         params = parse_qs(query_string)
         uuid_match = params.get('uuid', [None])[0]
-        current_match = CurrentMatchHandler()
-        response = current_match.curren_match(uuid_match)
+        match_handler = CurrentMatchHandler()
+        match_data = match_handler.get_current_match(uuid_match)
+
         response_body = render_template('match_score.html',
-                                        player1=response[0],
-                                        player2=response[1]).encode('utf-8')
+                                        player1=match_data[0].name,
+                                        player2=match_data[1].name).encode('utf-8')
         status = '200 OK'
         headers = [('Content-Type', 'text/html; charset=utf-8'),
                    ('Content-Length', str(len(response_body)))]
@@ -106,8 +104,3 @@ def application(environ, start_response):
         headers = [('Content-Type', 'text/html')]
         start_response(status, headers)
         return [response_body]
-
-
-
-page_number = 3
-filter_by_player_name = 'player_name'
