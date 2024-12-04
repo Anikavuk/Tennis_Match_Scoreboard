@@ -33,11 +33,9 @@ class MatchDAO:
 
             matches = []
             for match in results:
-                matches.append({
-                    'match_id': match.id,
-                    'player1': match.player1.name,
-                    'player2': match.player2.name,
-                    'winner': match.winner.name if match.winner else None
+                matches.append({'player1': match.player1.name,
+                                'player2': match.player2.name,
+                                'winner': match.winner.name if match.winner else None
                 })
 
             return matches
@@ -47,11 +45,9 @@ class MatchDAO:
         with Session(autoflush=False, bind=engine) as db:
             matches = db.query(Match).filter(
                 (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
-            all_matches = [{'match_id': match.id,
-                            'player1': match.player1.name,
+            all_matches = [{'player1': match.player1.name,
                             'player2': match.player2.name,
-                            'winner': match.winner.name,
-                            'score': match.score}
+                            'winner': match.winner.name if match.winner else None}
                            for match in matches]
             return all_matches
 

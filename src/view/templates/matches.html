@@ -12,11 +12,11 @@
 <div class="container">
     <h1>Finished matches</h1>
     <div class="search-container">
-        <form action="/search" method="GET">
+        <form action="/matches" method="GET">
             <label for="name-input"></label>
-            <input type="text" id="name-input" name="name" placeholder="Enter player name"required>
+            <input type="text" id="name-input" name="filter_by_name" value="{{filter_by_name}}"
+                   placeholder="Enter player name" required>
             <button type="submit" class="search-button">Search</button>
-            <input type="reset" class="clear-button" value="Clear">
         </form>
         <button class="button" onclick="window.location.href='/'">
             <span>Home</span>
@@ -30,7 +30,7 @@
         </div>
         {% for match in matches %}
         <div class="table-row">
-            <div class="table-cell">{{match.match_id}}</div>
+            <div class="table-cell">{{loop.index}}</div>
             <div class="table-cell">{{match.player1}}</div>
             <div class="table-cell">{{match.player2}}</div>
             <div class="table-cell">{{match.winner}}</div>

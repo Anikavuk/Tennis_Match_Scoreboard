@@ -1,11 +1,11 @@
 from urllib.parse import parse_qs, urlencode
+
 from src.errors import SameNamesError
 from src.handlers.match_score_handler import CurrentMatchHandler
+from src.handlers.matches_handler import FinishedMatchesHandler
 from src.handlers.present_match_handler import MatchRegistrationHandler
 from src.handlers.start_game_handler import PlayerHandler
-from src.handlers.all_matches_handler import FinishedMatchesHandler
 from src.view.jinja_engine import render_template
-
 
 
 def application(environ, start_response):
@@ -41,7 +41,7 @@ def application(environ, start_response):
 
         else:
             names_of_players = PlayerHandler()
-            match_data = names_of_players.start_game_handler(form) # [PlayerDTO(id=268, name='Миша'), PlayerDTO(id=269, name='Маша')]
+            match_data = names_of_players.start_game_handler(form)
 
             if len(match_data) == 1:
                 error_message = (list(match_data.values()))[0]
@@ -62,14 +62,26 @@ def application(environ, start_response):
                 start_response('302 Found', headers)
                 return []
     if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/matches':
-        finished_matches_handler = FinishedMatchesHandler()
-        finished_matches = finished_matches_handler.get_all_matсhes()
-        response_body = render_template('matches.html', matches=finished_matches).encode('utf-8')
-        headers = [('Content-Type', 'text/html; charset=utf-8'),
-              ('Content-Length', str(len(response_body)))]
-        start_response('200 OK', headers)
-        return [response_body]
-
+        query_string = environ.get('QUERY_STRING', '')
+        if 'filter_by_name' in query_string:
+            names_of_players = parse_qs(query_string)
+            matches_handler = FinishedMatchesHandler()
+            filtered_matches = matches_handler.find_matches_by_player_name(names_of_players.get('filter_by_name', []))
+            name = names_of_players.get('filter_by_name', [])[0]
+            response_body = render_template('matches.html',filter_by_name = name,
+                                            matches=filtered_matches).encode('utf-8')
+            headers = [('Content-Type', 'text/html; charset=utf-8'),
+                       ('Content-Length', str(len(response_body)))]
+            start_response('200 OK', headers)
+            return [response_body]
+        else:
+            finished_matches_handler = FinishedMatchesHandler()
+            finished_matches = finished_matches_handler.get_all_matсhes()
+            response_body = render_template('matches.html', matches=finished_matches).encode('utf-8')
+            headers = [('Content-Type', 'text/html; charset=utf-8'),
+                       ('Content-Length', str(len(response_body)))]
+            start_response('200 OK', headers)
+            return [response_body]
 
     elif environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/messages':
         query_string = environ.get('QUERY_STRING', '')
@@ -104,3 +116,4 @@ def application(environ, start_response):
         headers = [('Content-Type', 'text/html')]
         start_response(status, headers)
         return [response_body]
+# {'names_of_players': {'filter_by_name': ['CT']}}
