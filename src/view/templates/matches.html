@@ -12,14 +12,20 @@
 <div class="container">
     <h1>Finished matches</h1>
     <div class="search-container">
-        <form action="/matches" method="GET">
+         <form id="search-form" action="/matches" method="GET">
+<!--        <form action="/matches" method="GET">-->
             <label for="name-input"></label>
-            <input type="text" id="name-input" name="filter_by_name" value="{{filter_by_name}}"
-                   placeholder="Enter player name" required>
+            <input type="text" id="name-input" name="filter_by_player_name"
+                   value="{{filter_by_player_name}}">
+            <input type="hidden" name="page" value="1">
             <button type="submit" class="search-button">Search</button>
+        </form>
+        <form id="clear-form" action="/matches" method="GET">
+            <button type="submit" class="search-button">Clear</button>
         </form>
         <button class="button" onclick="window.location.href='/'">
             <span>Home</span>
+        </button>
     </div>
     <div class="table-container">
         <div class="table-row">
@@ -30,7 +36,7 @@
         </div>
         {% for match in matches %}
         <div class="table-row">
-            <div class="table-cell">{{loop.index}}</div>
+            <div class="table-cell">{{ loop.index + (current_page - 1) * matches_per_page }}</div>
             <div class="table-cell">{{match.player1}}</div>
             <div class="table-cell">{{match.player2}}</div>
             <div class="table-cell">{{match.winner}}</div>
@@ -38,9 +44,23 @@
         {% endfor %}
     </div>
     <div class="pagination">
-        <button class="prev-button">Prev</button>
-        <span class="page-info"></span>
-        <button class="next-button">Next</button>
+        {% if current_page > 1 %}
+            <form action="/matches" method="GET" style="display: inline;">
+                <input type="hidden" name="page" value="{{ current_page - 1 }}">
+                <input type="hidden" name="filter_by_player_name" value="{{ filter_by_player_name }}">
+                <button type="submit" class="prev-button">Назад</button>
+            </form>
+        {% endif %}
+
+        <span class="table-container" style="margin: 0 20px;">Страница {{ current_page }} из {{ total_pages }}</span> <!-- Добавлено расстояние -->
+
+        {% if current_page < total_pages %}
+            <form action="/matches" method="GET" style="display: inline;">
+                <input type="hidden" name="page" value="{{ current_page + 1 }}">
+                <input type="hidden" name="filter_by_player_name" value="{{ filter_by_player_name }}">
+                <button type="submit" class="next-button">Вперед</button>
+            </form>
+        {% endif %}
     </div>
 </div>
 </body>

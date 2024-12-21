@@ -1,11 +1,23 @@
 from dataclasses import dataclass
-from typing import Optional
-import json
+from typing import Optional, TypedDict, Union
+
+
+class MatchScore(TypedDict):
+    Player1: dict[str, Union[int, str]]
+    Player2: dict[str, Union[int, str]]
 
 
 @dataclass
 class MatchDTO:
-    def __init__(self, uuid: str,  player1_id:int, player2_id:int, winner_id: Optional[int]=None,score: Optional[json]=None):
+    uuid: str
+    player1_id: int
+    player2_id: int
+    winner_id: Optional[int]
+    score: MatchScore
+
+    def __init__(self, uuid: str, player1_id: int, player2_id: int,
+                 winner_id: Optional[int] = None,
+                 score: MatchScore = None):
         """Класс шаблон DTO для выгрузки матча
         :@param player1_id: id игрока 1
         :@param player2_id: id игрока 2
@@ -16,7 +28,8 @@ class MatchDTO:
         self.player1_id = player1_id
         self.player2_id = player2_id
         self.winner_id = winner_id
-        self.score = score
+        self.score = score or {"Player1": {"set": 0, "game": 0, "points": 0},
+                               "Player2": {"set": 0, "game": 0, "points": 0}}
 
     def to_dict(self) -> object:
         """Метод возвращает словарь с данными матча"""

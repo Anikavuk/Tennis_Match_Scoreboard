@@ -15,7 +15,9 @@
         <form action="/new-match" method="get" style="display: inline;">
             <button type="submit" class="button_menu">New match</button>
         </form>
-        <form action="/matches" method="get" style="display: inline;">
+<!--        <a  class="button_menu" href="/matches?page=1" >Matches</a>-->
+        <form action="/matches?page=1" method="get" style="display: inline;">
+            <input type="hidden" name="page" value="1">
             <button type="submit" class="button_menu">Matches</button>
         </form>
     </div>

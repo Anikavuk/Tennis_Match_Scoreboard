@@ -1,9 +1,12 @@
 from dataclasses import dataclass
+from typing import Union
 
 
 @dataclass
 class ScoreDTO:
     """Класс шаблон DTO для выгрузки счета
+    :@param player1 : имя игрока 1
+    :@param player2 : имя игрока 2
     :@param set_1: set игрока 1
     :@param set_2: set игрока 2
     :@param game_1: game игрока 1
@@ -11,13 +14,14 @@ class ScoreDTO:
     :@param points_1: points игрока 1
     :@param points_2: points игрока 2
     """
-
-    set_1: int
-    set_2: int
-    game_1: int
-    game_2: int
-    points_1: int
-    points_2: int
+    player1: str
+    player2: str
+    set1: int
+    set2: int
+    game1: int
+    game2: int
+    points1: Union[int, str]
+    points2: Union[int, str]
 
     def to_dict(self) -> object:
         """Метод возвращает словарь с данными счета"""

@@ -17,6 +17,10 @@ class InvalidPlayernameError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class NonExistentNameError(Exception):
+    def __init__(self, message="Вы ввели несуществующее имя"):
+        self.message = message
+        super().__init__(self.message)
 
 class BaseAPIException:
     @classmethod
@@ -35,5 +39,7 @@ class BaseAPIException:
         elif isinstance(exception, SameNamesError):
             error_code = 400
             error_message = "Вы ввели одинаковые имена, а надо разные"
+        elif isinstance(exception, NonExistentNameError):
+            error_code = 400
+            error_message = "Вы ввели несуществующее имя"
         return {error_code: error_message}
-
