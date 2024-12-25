@@ -28,22 +28,22 @@
     </div>
 </div>
 <div class="button-container">
-    <form action="/match-score" method="POST"  style="display: inline-block; margin: 0 10px;">
-        <input type="hidden" name="uuid" value="{{match_id}}">
+    <form action="/match-score?uuid={{match_id}}" method="POST"  style="display: inline-block; margin: 0 10px;">
+        <input type="hidden" name="uuid" value="{{ match_id }}">
         <input type="hidden" name="winner" value="player1">
         <button type="submit" class="button_menu">
             <span>Player 1 wins point!</span>
         </button>
     </form>
 
-    <form action="/match-score" method="POST"  style="display: inline-block;">
-        <input type="hidden" name="uuid" value="{{match_id}}">
+    <form action="/match-score?uuid={{match_id}}" method="POST"  style="display: inline-block;">
+        <input type="hidden" name="uuid" value="{{ match_id }}">
         <input type="hidden" name="winner" value="player2">
         <button type="submit">
             <span>Player 2 wins point!</span>
         </button>
     </form>
-    <iframe name="hiddenFrame" style="display:none;"></iframe>
+
 
 </div>
 </body>

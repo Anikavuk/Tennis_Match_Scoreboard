@@ -23,3 +23,4 @@ class MatchRegistrationHandler(BaseController):
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
             return BaseAPIException.error_response(exception=IntegrityError())
+

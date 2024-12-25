@@ -55,7 +55,7 @@ def application(environ, start_response):
             if len(match_data) > 1:
                 new_match = MatchRegistrationHandler()
                 new_match_uuid = new_match.get_match_uuid_by_player_ids(match_data)
-                query_string = urlencode({'uuid': new_match_uuid})
+                query_string = urlencode({'uuid': new_match_uuid}) # 'uuid=ff004c18-c186-4319-bcd8-46581fe9f7b7'
 
                 headers = [('Location', '/match-score?' + query_string),
                            ('Content-Type', 'text/plain; charset=utf-8'),
@@ -106,22 +106,23 @@ def application(environ, start_response):
     if environ['REQUEST_METHOD'] == 'POST' and environ['PATH_INFO'] == '/match-score':
         content_length = int(environ.get('CONTENT_LENGTH', 0))
         body = environ['wsgi.input'].read(content_length).decode('utf-8')
-        query_string = environ.get('HTTP_REFERER', '')
-        parsed_url = urlparse(query_string)
-        params = parse_qs(parsed_url.query)
-        uuid_match = params.get('uuid')[0]
+
         form = parse_qs(body) # {'winner': ['player1']}
+        uuid_match = form.get('uuid', [None])[0]
         winner = form.get('winner')[0]
-        if winner == 'player1':
-            points1 =15
-            # point_score =
+        match_handler = CurrentMatchHandler()
+        match_data = match_handler.update_score_match(uuid_match, winner)
 
         response_body = render_template('match_score.html',
-                                        points1=points1).encode('utf-8')
-        headers = [('Content-Type', 'text/html; charset=utf-8'),
-                   ('Content-Length', str(len(response_body))),  ('X-Frame-Options', 'SAMEORIGIN')
-                   ]
-
+                                        player1=match_data.player1,
+                                        player2=match_data.player2,
+                                        set1=match_data.set1,
+                                        set2=match_data.set2,
+                                        games1=match_data.game1,
+                                        games2=match_data.game2,
+                                        points1=match_data.points1,
+                                        points2=match_data.points2, match_id=uuid_match).encode('utf-8')
+        headers = [('Content-Type', 'text/html; charset=utf-8')]
         status = '200 OK'
         start_response(status, headers)
         return [response_body]
@@ -140,7 +141,7 @@ def application(environ, start_response):
         return [response_body]
 
     elif environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/match-score':
-        query_string = environ.get('QUERY_STRING', '')
+        query_string = environ.get('QUERY_STRING', '') # 'uuid=ff004c18-c186-4319-bcd8-46581fe9f7b7'
         params = parse_qs(query_string)
         uuid_match = params.get('uuid', [None])[0]
         match_handler = CurrentMatchHandler()
@@ -155,7 +156,7 @@ def application(environ, start_response):
                                         games1=match_data.game1,
                                         games2=match_data.game2,
                                         points1=match_data.points1,
-                                        points2=match_data.points2).encode('utf-8')
+                                        points2=match_data.points2, match_id = uuid_match).encode('utf-8')
         status = '200 OK'
         headers = [('Content-Type', 'text/html; charset=utf-8'),
                    ('Content-Length', str(len(response_body)))]
