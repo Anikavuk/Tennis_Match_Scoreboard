@@ -1,5 +1,5 @@
 from typing import List
-from src.service.service import Tennis_Score
+from src.service.service import Tennis_Score, ScoreCalculator
 from src.dao.match_DAO import MatchDAO
 from src.dto.score_DTO import ScoreDTO
 from src.errors import BaseAPIException, DatabaseErrorException
@@ -48,3 +48,19 @@ class CurrentMatchHandler(BaseController):
                 "points": score_dto.points2,
             }
         }
+
+    def checking_score(self, match_id: str):
+        current_score = self.convert_score_dto_to_dict(self.get_current_match(match_id)) # {'player1': {'set': 0, 'game': 0, 'points': 40}, 'player2': {'set': 0, 'game': 0, 'points': 30}}
+        current_match = ScoreCalculator(current_score)
+        current_match.update_games(current_score)
+        current_match.update_set(current_score)
+        a = current_match.winner(current_score)
+
+        current_score_match = {'match_data': current_score}
+        tennis = MatchDAO()
+        tennis.update_match(match_id, current_score_match)
+        return self.get_current_match(match_id), a
+
+dddd = CurrentMatchHandler()
+sss = dddd.update_score_match('f472d446-8290-41fd-9382-6ed5ab300bc3', 'player2')
+print(dddd.checking_score('f472d446-8290-41fd-9382-6ed5ab300bc3'))
