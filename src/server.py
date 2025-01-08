@@ -111,17 +111,27 @@ def application(environ, start_response):
         uuid_match = form.get('uuid', [None])[0]
         winner = form.get('winner')[0]
         match_handler = CurrentMatchHandler()
-        match_data = match_handler.update_score_match(uuid_match, winner)
+
+        match_update_result = match_handler.process_point_won(uuid_match, winner)
+        current_match_state = match_handler.process_match_score(uuid_match)
+        # if winner in current_match_state:
+        #     response_body = render_template('match_finished.html',
+        #                                     player1=current_match_state.player1,
+        #                                     player2=current_match_state.player2,
+        #                                     set1=current_match_state.set1,
+        #                                     set2=current_match_state.set2,
+        #                                     match_id=uuid_match).encode('utf-8')
+
 
         response_body = render_template('match_score.html',
-                                        player1=match_data.player1,
-                                        player2=match_data.player2,
-                                        set1=match_data.set1,
-                                        set2=match_data.set2,
-                                        games1=match_data.game1,
-                                        games2=match_data.game2,
-                                        points1=match_data.points1,
-                                        points2=match_data.points2, match_id=uuid_match).encode('utf-8')
+                                        player1=current_match_state.player1,
+                                        player2=current_match_state.player2,
+                                        set1=current_match_state.set1,
+                                        set2=current_match_state.set2,
+                                        games1=current_match_state.game1,
+                                        games2=current_match_state.game2,
+                                        points1=current_match_state.points1,
+                                        points2=current_match_state.points2, match_id=uuid_match).encode('utf-8')
         headers = [('Content-Type', 'text/html; charset=utf-8')]
         status = '200 OK'
         start_response(status, headers)
@@ -145,7 +155,7 @@ def application(environ, start_response):
         params = parse_qs(query_string)
         uuid_match = params.get('uuid', [None])[0]
         match_handler = CurrentMatchHandler()
-        match_data = match_handler.get_current_match(
+        match_data = match_handler.get_match_score(
             uuid_match)  # ScoreDTO(player1='ПА', player2='ААА', set1=2, set2=0, game1=6, game2=4, points1='AD', points2=15)
 
         response_body = render_template('match_score.html',

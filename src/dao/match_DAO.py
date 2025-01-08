@@ -37,7 +37,7 @@ class MatchDAO:
             for match in results:
                 matches.append({'player1': match.player1.name,
                                 'player2': match.player2.name,
-                                'winner': match.winner.name if match.winner else None
+                                'winner': match.check_the_winner.name if match.check_the_winner else None
                 })
 
             return matches
@@ -49,7 +49,7 @@ class MatchDAO:
                 (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
             all_matches = [{'player1': match.player1.name,
                             'player2': match.player2.name,
-                            'winner': match.winner.name if match.winner else None}
+                            'winner': match.check_the_winner.name if match.check_the_winner else None}
                            for match in matches]
             return all_matches
 

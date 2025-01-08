@@ -28,8 +28,8 @@ class MatchDTO:
         self.player1_id = player1_id
         self.player2_id = player2_id
         self.winner_id = winner_id
-        self.score = score or {"Player1": {"set": 0, "game": 0, "points": 0},
-                               "Player2": {"set": 0, "game": 0, "points": 0}}
+        self.score = score or {"player1": {"set": 0, "game": 0, "points": 0},
+                               "player2": {"set": 0, "game": 0, "points": 0}}
 
     def to_dict(self) -> object:
         """Метод возвращает словарь с данными матча"""
