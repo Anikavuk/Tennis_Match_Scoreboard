@@ -20,12 +20,6 @@ class Tiebreaker(Tennis_Score):
 class ScoreCalculator:
     def __init__(self, score_dict):
         self.score_dict = score_dict  # {"player1": {"set": 0, "game": 0, "points": 0}, "player2": {"set": 0, "game": 0, "points": 0}}
-        self.player1_wins = 0  # Счет выигранных очков player1
-        self.player2_wins = 0  # Счет выигранных очков player2
-
-    def current_score(self):
-        """возращает счет"""
-        return self.score_dict
 
     def check_the_winner(self, score_dict):
         """Возвращает победителя"""
@@ -62,24 +56,26 @@ class ScoreCalculator:
 
     def update_games(self, score_dict, winner):
         """Изменяет game у игроков и обнуляет points у всех игроков"""
-        # можно кратко записать
-        # if score_dict[winner]['points'] in ['AD', 7]:
-        #     score_dict[winner]['game'] += 1
+        # player1_points = score_dict['player1']['points']
+        # player2_points = score_dict['player2']['points']
+        # loser = 'player1' if winner == 'player2' else 'player2'
+        if score_dict[winner]['points'] in ['AD', 7]:
+            score_dict[winner]['game'] += 1
+            self.reset_the_points()
+        # if (player1_points == 'AD' and player2_points == 40) and winner == 'player1':
+        #     score_dict['player1']['game'] += 1
         #     self.reset_the_points()
-        player1_points = score_dict['player1']['points']
-        player2_points = score_dict['player2']['points']
-        if player1_points == 'AD' or player1_points == 7:
-            score_dict['player1']['game'] += 1
-            self.reset_the_points()
-        if player2_points == 'AD' or player2_points == 7:
-            score_dict['player2']['game'] += 1
-            self.reset_the_points()
-        if (player1_points == 'AD' and player2_points == 40) and winner == 'player1':
-            score_dict['player1']['game'] += 1
-            self.reset_the_points()
-        if (player1_points == 40 and player2_points == 'AD') and winner == 'player2':
-            score_dict['player2']['game'] += 1
-            self.reset_the_points()
+        # if (player1_points == 40 and player2_points == 'AD') and winner == 'player2':
+        #     score_dict['player2']['game'] += 1
+        #     self.reset_the_points()
+        # elif score_dict[winner]['points'] == 40 and score_dict[loser]['points'] == 'AD':
+        #     # Если противник был на AD, но проиграл, возвращаем счет к 40-40
+        #     score_dict[winner]['points'] = 40
+        #     score_dict[loser]['points'] = 40
+        # elif score_dict[winner]['points'] == 40 and score_dict[loser]['points'] == 40:
+        #     # Если оба на 40, то победитель получает AD
+        #     score_dict[winner]['points'] = 'AD'
+        #     score_dict[loser]['points'] = 40
 
     def check_deuce_condition(self):
         """Функция возвращает True, если points у игроков равны 40,
@@ -91,43 +87,29 @@ class ScoreCalculator:
         player2_points = self.score_dict['player2']['points']
         if (player1_points == 'AD' and player2_points == 40) and winner == 'player2':
             self.score_dict['player1']['points'] = 40
+            self.score_dict['player2']['points'] = 40
         elif (player1_points == 40 and player2_points == 'AD') and winner == 'player1':
             self.score_dict['player2']['points'] = 40
+            self.score_dict['player1']['points'] = 40
         elif (player1_points == 40 and player2_points == 40) and winner == 'player1':
             self.score_dict['player1']['points'] = 'AD'
         elif (player1_points == 40 and player2_points == 40) and winner == 'player2':
             self.score_dict['player2']['points'] = 'AD'
+        elif (player1_points == 40 and player2_points == 'AD') and winner == 'player2':
+            self.update_games(self.score_dict, winner)
+            self.reset_the_points()
+        elif (player1_points == 'AD' and player2_points == 40 ) and winner == 'player1':
+            self.update_games(self.score_dict, winner)
+            self.reset_the_points()
         return self.score_dict
 
     def check_advantage_condition(self):
         # Проверка на Advantage (AD)
         return 'AD' in [self.score_dict['player1']['points'], self.score_dict['player2']['points']]
 
-# fff = ScoreCalculator({'player1': {'set': 0, 'game': 0, 'points': 40}, 'player2': {'set': 0, 'game': 0, 'points': 40}})
-# print(fff.process_deuce_game('player2'))
-        # if self.player1_wins == 2:
-        #     self.score_dict['player1']['game'] += 1
-        #     self.reset_the_points()
-        #     self.player1_wins = 0  # Сброс счетчика
-        #     self.player2_wins = 0  # Сброс счетчика
-        # if self.player2_wins == 2:
-        #     self.score_dict['player2']['game'] += 1
-        #     self.reset_the_points()
-        #     self.player1_wins = 0  # Сброс счетчика
-        #     self.player2_wins = 0  # Сброс счетчика
-        # self.update_games(self.score_dict)
-
-# winner = 'player1'
-# fff = ScoreCalculator({'player1': {'set': 0, 'game': 55, 'points': 40}, 'player2': {'set': 0, 'game': 60, 'points': 40}})
-# print(fff.score_dict)
-# fff.reset_the_points()
-# fff.reset_the_games()
-
-# fff = {'player1': {'set': 0, 'game': 55, 'points': 40}, 'player2': {'set': 0, 'game': 60, 'points': 40}}
-# match_logic = ScoreCalculator(fff)
-# if match_logic.check_deuce_condition():
-#     print('СИТУАЦИЯ 40-40')
-#     match_logic.process_deuce_game(winner)
-# else:
-#     fff[winner]['points'] = fff.counting_of_points(fff[winner]['points'])
-# print(match_logic.score_dict)
+fff = ScoreCalculator({'player1': {'set': 3, 'game': 0, 'points': 40}, 'player2': {'set': 0, 'game': 0, 'points': 30}})
+print(fff.check_the_winner({'player1': {'set': 3, 'game': 0, 'points': 40}, 'player2': {'set': 0, 'game': 0, 'points': 30}}))
+# if fff.check_advantage_condition():
+#     print(fff.check_advantage_condition())
+#     print(fff.process_deuce_game(winner))
+# fff.

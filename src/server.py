@@ -112,8 +112,8 @@ def application(environ, start_response):
         winner = form.get('winner')[0]
         match_handler = CurrentMatchHandler()
 
-        match_update_result = match_handler.process_point_won(uuid_match, winner)
-        current_match_state = match_handler.process_match_score(uuid_match, winner)
+        current_match_state = match_handler.process_point_won(uuid_match, winner)
+
         # if winner in current_match_state:
         #     response_body = render_template('match_finished.html',
         #                                     player1=current_match_state.player1,

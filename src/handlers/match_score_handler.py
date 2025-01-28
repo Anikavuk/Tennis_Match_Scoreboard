@@ -38,24 +38,25 @@ class CurrentMatchHandler(BaseController):
             current_score_dict = match_logic.process_deuce_game(winner)
         elif match_logic.check_advantage_condition():
             current_score_dict = match_logic.process_deuce_game(winner)
-            match_logic.update_games(current_score_dict, winner)
-            current_score_dict = match_logic.score_dict
-
         elif match_logic.check_tiebreaker_condition():
             tiebreaker_logic  = Tiebreaker()
             current_score_dict[winner]['points'] = tiebreaker_logic.counting_of_points(
             current_score_dict[winner]['points'])
+            match_logic.update_games(current_score_dict, winner)
         else:
             current_score_dict[winner]['points'] = score_logic.counting_of_points(
             current_score_dict[winner]['points'])
+            match_logic.update_games(current_score_dict, winner)
 
-        # if match_logic.check_advantage_condition() and current_score_dict[winner]['points'] == 'AD':
-        #     match_logic.update_games(current_score_dict, winner)
+        match_logic.update_set(current_score_dict)
 
 
         updated_score = {'match_data': current_score_dict}
 
         match_dao = MatchDAO()
+        if match_logic.check_the_winner(current_score_dict):
+            winner = match_logic.check_the_winner(current_score_dict) # выглядит player1
+            match_dao.update_winner(uuid_match)
         match_dao.update_match(uuid_match, updated_score)
         return self.get_match_score(uuid_match)
 
@@ -76,21 +77,17 @@ class CurrentMatchHandler(BaseController):
         }
 
     def process_match_score(self, uuid_match: str, winner: str):
-        """ Проверяет и обновляет счетчики геймов и сетов."""
+        """ ."""
         current_score = self._convert_score_dto_to_dict(self.get_match_score(
             uuid_match))  # {'player1': {'set': 0, 'game': 0, 'points': 40}, 'player2': {'set': 0, 'game': 0, 'points': 30}}
         score_calculator = ScoreCalculator(current_score)
-        score_calculator.update_games(current_score, winner) #  """Изменяет game у игроков и обнуляет points у всех игроков"""
-        score_calculator.update_set(current_score)  # """Изменяет set у игроков и обнуляет game у всех игроков"""
-        updated_score = {'match_data': current_score}
-
-        match_dao = MatchDAO()
-        match_dao.update_match(uuid_match, updated_score)
-        return self.get_match_score(uuid_match)
-
+        score_calculator.check_the_winner(current_score) #
 
 #
-# ddd = CurrentMatchHandler()
-# uuid_match = 'ce7c3c6a-ea13-425a-a33f-c2ba78e7a3cb'
-# ddd.process_point_won(uuid_match, 'player1')
-# ddd.process_point_won(uuid_match, 'player1')
+#
+#
+# #
+# # ddd = CurrentMatchHandler()
+# # uuid_match = 'ce7c3c6a-ea13-425a-a33f-c2ba78e7a3cb'
+# # ddd.process_point_won(uuid_match, 'player1')
+# # # ddd.process_point_won(uuid_match, 'player1')

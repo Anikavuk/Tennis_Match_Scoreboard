@@ -26,6 +26,13 @@ class MatchDAO:
             match.score = score_update
             db.commit()
             return match
+    def update_winner(self, uuid: str, winner: int):
+        """Добавление победителя в бд"""
+        with Session(autoflush=False, bind=engine) as db:
+            match = db.query(Match).filter(Match.uuid == uuid).first()
+            match.winner = winner
+            db.commit()
+            return match
 
     def get_all_matches(self):
         """Выгрузка всех матчей"""
