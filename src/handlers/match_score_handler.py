@@ -83,11 +83,3 @@ class CurrentMatchHandler(BaseController):
         score_calculator = ScoreCalculator(current_score)
         score_calculator.check_the_winner(current_score) #
 
-#
-#
-#
-# #
-# # ddd = CurrentMatchHandler()
-# # uuid_match = 'ce7c3c6a-ea13-425a-a33f-c2ba78e7a3cb'
-# # ddd.process_point_won(uuid_match, 'player1')
-# # # ddd.process_point_won(uuid_match, 'player1')
