@@ -113,14 +113,17 @@ def application(environ, start_response):
         match_handler = CurrentMatchHandler()
 
         current_match_state = match_handler.process_point_won(uuid_match, winner)
-
-        # if winner in current_match_state:
-        #     response_body = render_template('match_finished.html',
-        #                                     player1=current_match_state.player1,
-        #                                     player2=current_match_state.player2,
-        #                                     set1=current_match_state.set1,
-        #                                     set2=current_match_state.set2,
-        #                                     match_id=uuid_match).encode('utf-8')
+        if current_match_state.winner:
+            response_body = render_template('match_finished.html',
+                                            player1=current_match_state.player1,
+                                            player2=current_match_state.player2,
+                                            set1=current_match_state.set1,
+                                            set2=current_match_state.set2,
+                                            match_id=uuid_match).encode('utf-8')
+            headers = [('Content-Type', 'text/html; charset=utf-8')]
+            status = '200 OK'
+            start_response(status, headers)
+            return [response_body]
 
 
         response_body = render_template('match_score.html',

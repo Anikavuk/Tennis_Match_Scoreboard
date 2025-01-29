@@ -21,7 +21,7 @@ class ScoreDTO:
                  game1: int, game2: int,
                  points1: Union[int, str],
                  points2: Union[int, str],
-                 winner: Optional[int] = None,):
+                 winner: Optional[str] = None,):
         """Класс шаблон DTO для выгрузки матча
         :@param player1 : имя игрока 1
         :@param player2 : имя игрока 2

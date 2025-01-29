@@ -1,5 +1,5 @@
-from pydantic import json
 import json
+from typing import List, Dict, Any
 from src.db_models.database import engine, Session
 from src.db_models.models import Match
 
@@ -7,7 +7,7 @@ from src.db_models.models import Match
 class MatchDAO:
 
     @staticmethod
-    def save_current_match(player1_id: int, player2_id: int):
+    def save_current_match(player1_id: int, player2_id: int) -> str:
         """Сохранение текущего матча"""
         with Session(autoflush=False, bind=engine) as db:
             match = Match(player1_id=player1_id,
@@ -19,22 +19,21 @@ class MatchDAO:
             db.commit()
             return match.uuid
 
-    def update_match(self, uuid: str, score_update: json):
-        """Изменение сохраненного матча"""
+    def update_match(self, uuid: str, score_update: json) -> None:
+        """Изменение счета матча"""
         with Session(autoflush=False, bind=engine) as db:
             match = db.query(Match).filter(Match.uuid == uuid).first()
             match.score = score_update
             db.commit()
-            return match
-    def update_winner(self, uuid: str, winner: int):
-        """Добавление победителя в бд"""
+
+    def update_winner(self, uuid: str, winner: int) -> None:
+        """Добавление победителя в завершенный матч"""
         with Session(autoflush=False, bind=engine) as db:
             match = db.query(Match).filter(Match.uuid == uuid).first()
-            match.winner = winner
+            match.winner_id = winner
             db.commit()
-            return match
 
-    def get_all_matches(self):
+    def get_all_matches(self) -> List[Dict[str, Any]]:
         """Выгрузка всех матчей"""
         with (Session(autoflush=False, bind=engine) as bd):
             matches_query = bd.query(Match)
@@ -44,19 +43,19 @@ class MatchDAO:
             for match in results:
                 matches.append({'player1': match.player1.name,
                                 'player2': match.player2.name,
-                                'winner': match.check_the_winner.name if match.check_the_winner else None
-                })
+                                'winner': match.winner.name if match.winner else None
+                                })
 
             return matches
 
-    def list_player_matches(self, player_name: str):
+    def list_player_matches(self, player_name: str) -> List[Dict[str, Any]]:
         """выгрузка всех матчей с определенным игроком"""
         with Session(autoflush=False, bind=engine) as db:
             matches = db.query(Match).filter(
                 (Match.player1.has(name=player_name)) | (Match.player2.has(name=player_name))).all()
             all_matches = [{'player1': match.player1.name,
                             'player2': match.player2.name,
-                            'winner': match.check_the_winner.name if match.check_the_winner else None}
+                            'winner': match.winner.name if match.winner else None}
                            for match in matches]
             return all_matches
 
@@ -72,6 +71,12 @@ class MatchDAO:
                 'points1': match.score['match_data']['player1']['points'],
                 'set2': match.score['match_data']['player2']['set'],
                 'game2': match.score['match_data']['player2']['game'],
-                'points2': match.score['match_data']['player2']['points']
+                'points2': match.score['match_data']['player2']['points'],
+                'winner': match.winner
+
             }
             return result_dict
+
+
+ddd = MatchDAO()
+print(ddd.list_player_matches('Ксюша'))

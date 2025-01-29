@@ -43,3 +43,6 @@ class PlayerDAO:
                     (1040 <= ord(letter) <= 1103) or (ord(letter) == 32)):
                 return False
         return True
+
+# dddd = PlayerDAO('ААА')
+# print(dddd.save_player('ААА'))
