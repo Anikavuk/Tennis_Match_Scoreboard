@@ -54,7 +54,7 @@ def application(environ, start_response):
                 return []
             if len(match_data) > 1:
                 new_match = MatchRegistrationHandler()
-                new_match_uuid = new_match.get_match_uuid_by_player_ids(match_data)
+                new_match_uuid = new_match._get_match_uuid_by_player_ids(match_data)
                 query_string = urlencode({'uuid': new_match_uuid}) # 'uuid=ff004c18-c186-4319-bcd8-46581fe9f7b7'
 
                 headers = [('Location', '/match-score?' + query_string),
@@ -69,9 +69,9 @@ def application(environ, start_response):
         filter_by_player_name = params.get('filter_by_player_name', [''])[0]
         matches_handler = FinishedMatchesHandler()
         if filter_by_player_name:
-            filtered_matches = matches_handler.find_matches_by_player_name(filter_by_player_name)
+            filtered_matches = matches_handler._find_matches_by_player_name(filter_by_player_name)
         else:
-            filtered_matches = matches_handler.get_all_matches()
+            filtered_matches = matches_handler._get_all_matches()
 
         pagination = Pagination()
         paged_matches = pagination.paginate_list(filtered_matches)
@@ -112,7 +112,7 @@ def application(environ, start_response):
         winner = form.get('winner')[0]
         match_handler = CurrentMatchHandler()
 
-        current_match_state = match_handler.process_point_won(uuid_match, winner)
+        current_match_state = match_handler._process_point_won(uuid_match, winner)
         if current_match_state.winner:
             response_body = render_template('match_finished.html',
                                             player1=current_match_state.player1,
@@ -158,7 +158,7 @@ def application(environ, start_response):
         params = parse_qs(query_string)
         uuid_match = params.get('uuid', [None])[0]
         match_handler = CurrentMatchHandler()
-        match_data = match_handler.get_match_score(
+        match_data = match_handler._get_match_score(
             uuid_match)  # ScoreDTO(player1='ПА', player2='ААА', set1=2, set2=0, game1=6, game2=4, points1='AD', points2=15)
 
         response_body = render_template('match_score.html',

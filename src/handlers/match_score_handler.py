@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict
 
 from src.dao.match_DAO import MatchDAO
 from src.dao.player_DAO import PlayerDAO
@@ -14,56 +14,80 @@ class CurrentMatchHandler(BaseController):
     """
 
     @staticmethod
-    def get_match_score(match_uuid: str) -> List[ScoreDTO]:
-        """Метод возвращает информацию о матче без победителя"""
+    def _get_match_score(uuid_match: str) -> ScoreDTO:
+        """Выгружает информацию о матче по uuid
+        :param uuid_match : str уникальный идентификатор матча.
+        :return: ScoreDTO объект ScoreDTO
+        Raises: DatabaseErrorException: Если произошла ошибка при подключении к базе данных или выполнении запроса.
+        """
         try:
             match_dao = MatchDAO()
-            match_info = match_dao._get_match_info_by_uuid(
-                match_uuid)  # {'game1': 0, 'game2': 1, 'player1': 'Леха', 'player2': 'Женя', 'points1': 30, 'points2': 15, 'set1': 2, 'set2': 1}
-            match_score_DTO = ScoreDTO(
-                **match_info)  # ScoreDTO(player1='Леха', player2='Женя', winner=None, set1=2, set2=1, game1=0, game2=1, points1=30, points2=15)
-            return match_score_DTO  # ScoreDTO(player1='ПА', player2='Ксюша', set1=0, set2=0, game1=0, game2=0, points1=0, points2=0)
+            match_info = match_dao._get_match_info_by_uuid(uuid_match)
+            match_score_DTO = ScoreDTO(**match_info)
+            return match_score_DTO
         except DatabaseErrorException:
             return BaseAPIException.error_response(exception=DatabaseErrorException())
 
-    def process_point_won(self, uuid_match: str, winner: str) -> object:
+    def _process_point_won(self, uuid_match: str, winner: str) -> ScoreDTO:
         """
-            Обрабатывает ситуацию, когда игрок выигрывает очко. Обновляет счет в матче.
+            Обрабатывает ситуацию, когда игрок выигрывает очко. Обновляет счет в гейме, в сете.
+            Проверяет счет на деус, если points у игроков равные 40, тогда побед должно быть 2 раза подряд
             Проверяет счет на тайбрейк, если game1 и game2 равны 6, тогда points изменяются от 0 до 7
-            Проверяет points игроков, если они равные 40, тогда счетчики очков считаются до 2
-            Возвращает объект ScoreDTO, представляющий обновленный счет матча.
+
+            @param uuid_match: str уникальный идентификатор матча.
+            @param winner: имя игрока победителя
+            @return: объект ScoreDTO
         """
-        current_score_dict = self._convert_score_dto_to_dict(self.get_match_score(uuid_match))
+        # Преобразует score объекта ScoreDTO в словарь
+        current_score_dict = self._convert_score_dto_to_dict(self._get_match_score(uuid_match))
         match_logic = Tennis_Score()
 
         score_logic = ScoreCalculator(current_score_dict)
+        # Проверка на деус
         if score_logic.check_deuce_condition():
             current_score_dict = score_logic.process_deuce_game(winner)
+        # Проверка на AD в points
         elif score_logic.check_advantage_condition():
             current_score_dict = score_logic.process_deuce_game(winner)
+        # Проверка на тайбрейк
         elif score_logic.check_tiebreaker_condition():
             tiebreaker_logic = Tiebreaker()
             current_score_dict[winner]['points'] = tiebreaker_logic.counting_of_points(
                 current_score_dict[winner]['points'])
             score_logic.update_games(current_score_dict, winner)
+        # Если обычный счет
         else:
             current_score_dict[winner]['points'] = match_logic.counting_of_points(
                 current_score_dict[winner]['points'])
             score_logic.update_games(current_score_dict, winner)
 
-        score_logic.update_set(current_score_dict)
+        score_logic.update_set(current_score_dict)  # Обновляет счет set
 
-        updated_score = {'match_data': current_score_dict}
+        updated_score = {'match_data': current_score_dict}  # Обновленный счет сохраняется в бд
 
         match_dao = MatchDAO()
         match_dao.update_match(uuid_match, updated_score)
+        # Если победитель определен, сохраняем информацию о нем
         if score_logic.check_the_winner(current_score_dict):
-            self.determine_and_save_winner(uuid_match)
-        return self.get_match_score(uuid_match)
+            self._determine_and_save_winner(uuid_match)
+        return self._get_match_score(uuid_match)
 
-    def _convert_score_dto_to_dict(self, score_dto):
-        """Преобразует из ScoreDTO(player1='ПА', player2='еее', set1=0, set2=0, game1=0, game2=0, points1=0, points2=0)
-        в {'player1': {'set': 0, 'game': 0, 'points': 0}, 'player2': {'set': 0, 'game': 0, 'points': 0}}"""
+    def _convert_score_dto_to_dict(self, score_dto: object) -> Dict:
+        """Преобразует объект ScoreDTO в словарь.
+
+        Аргументы:
+        - score_dto (ScoreDTO): Объект ScoreDTO, содержащий данные о счете матча.
+
+        Возвращает:
+        - dict: Словарь, представляющий счет матча в формате:
+          {
+              "player1": {"set": int, "game": int, "points": int},
+              "player2": {"set": int, "game": int, "points": int}
+          }
+
+        Примечание:
+        - Поле 'winner' из ScoreDTO не включается в результирующий словарь.
+        """
         return {
             "player1": {
                 "set": score_dto.set1,
@@ -77,17 +101,20 @@ class CurrentMatchHandler(BaseController):
             }
         }
 
-    def determine_and_save_winner(self, uuid_match: str):
-        """ Метод проверяет на победу игрока, сохраяет в матче по uuid в winner и возвращает id игрока победителя"""
+    def _determine_and_save_winner(self, uuid_match: str) -> int:
+        """ Метод проверяет на победу игрока,
+        сохраяет в матче по uuid в winner
+        и возвращает id игрока победителя"""
+
         # Получаем объект ScoreDTO для указанного uuid матча
-        score_dto_obj = self.get_match_score(uuid_match)
+        score_dto_obj = self._get_match_score(uuid_match)
         if score_dto_obj.set1 == 3:
             score_dto_obj.winner = score_dto_obj.player1
         elif score_dto_obj.set2 == 3:
             score_dto_obj.winner = score_dto_obj.player2
-        player_dao = PlayerDAO(score_dto_obj.winner)
-        winner = player_dao._save_player(score_dto_obj.winner)
+
+        obj_player_dao = PlayerDAO(score_dto_obj.winner)
+        winner = obj_player_dao._save_player(score_dto_obj.winner)
         match_dao = MatchDAO()
         match_dao.update_winner(uuid_match, winner)
         return winner
-

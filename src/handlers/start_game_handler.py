@@ -12,6 +12,18 @@ class PlayerHandler(BaseController):
     """
 
     def start_game_handler(self, form: Dict[str, List[str]]) -> List[PlayerDTO]:
+        """Обрабатывает начало игры, проверяет корректность введенных данных и сохраняет новых игроков в базу данных.
+
+            Аргументы:
+            - form (Dict[str, List[str]]): Форма с данными об игроках, представленная в виде словаря.
+
+            Возвращает:
+            - List[PlayerDTO]: Список объектов PlayerDTO, представляющих игроков, участвующих в игре.
+
+            Исключения:
+            - InvalidPlayernameError: Возникает, если одно из имен игроков пустое или некорректное.
+            - IntegrityError: Возникает, если происходит дублирование имени, которое уже есть в базе данных.
+            """
         try:
             # Проверка на пустые имена игроков
             players_names = {key: form.get(key)[0] if form.get(key) else None for key in ['player1', 'player2']}
@@ -31,7 +43,7 @@ class PlayerHandler(BaseController):
                 else:
                     raise SameNamesError
 
-            return players_dto  # [PlayerDTO(id=268, name='Миша'), PlayerDTO(id=269, name='Маша')]
+            return players_dto
         except InvalidPlayernameError:
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
