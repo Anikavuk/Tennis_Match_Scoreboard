@@ -18,7 +18,7 @@ class CurrentMatchHandler(BaseController):
         """Метод возвращает информацию о матче без победителя"""
         try:
             match_dao = MatchDAO()
-            match_info = match_dao.get_match_info_by_uuid(
+            match_info = match_dao._get_match_info_by_uuid(
                 match_uuid)  # {'game1': 0, 'game2': 1, 'player1': 'Леха', 'player2': 'Женя', 'points1': 30, 'points2': 15, 'set1': 2, 'set2': 1}
             match_score_DTO = ScoreDTO(
                 **match_info)  # ScoreDTO(player1='Леха', player2='Женя', winner=None, set1=2, set2=1, game1=0, game2=1, points1=30, points2=15)
@@ -86,7 +86,7 @@ class CurrentMatchHandler(BaseController):
         elif score_dto_obj.set2 == 3:
             score_dto_obj.winner = score_dto_obj.player2
         player_dao = PlayerDAO(score_dto_obj.winner)
-        winner = player_dao.save_player(score_dto_obj.winner)
+        winner = player_dao._save_player(score_dto_obj.winner)
         match_dao = MatchDAO()
         match_dao.update_winner(uuid_match, winner)
         return winner

@@ -11,7 +11,7 @@ class FinishedMatchesHandler:
     def get_all_matches(self):
         try:
             match_dao = MatchDAO()
-            all_matches_list = match_dao.get_all_matches()
+            all_matches_list = match_dao._get_all_matches()
             completed_matches = [match for match in all_matches_list if match['winner'] is not None]
             return completed_matches
         except InvalidPlayernameError:
@@ -22,7 +22,7 @@ class FinishedMatchesHandler:
     def find_matches_by_player_name(self, name:str):
         try:
             match_dao = MatchDAO()
-            all_matches_list = match_dao.list_player_matches(name)
+            all_matches_list = match_dao._list_player_matches(name)
             completed_matches = [match for match in all_matches_list if match['winner'] is not None]
             return completed_matches
         except InvalidPlayernameError:

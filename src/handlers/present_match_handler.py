@@ -16,7 +16,7 @@ class MatchRegistrationHandler(BaseController):
         try:
             players_id_1 = getattr(form[0], 'id')
             players_id_2 = getattr(form[1], 'id')
-            uuid = MatchDAO.save_current_match(players_id_1, players_id_2)
+            uuid = MatchDAO._save_current_match(players_id_1, players_id_2)
             result = MatchDTO(uuid, players_id_1, players_id_2)
             return result.uuid
         except InvalidPlayernameError:

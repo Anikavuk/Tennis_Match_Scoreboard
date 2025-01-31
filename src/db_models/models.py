@@ -10,6 +10,10 @@ class Base(DeclarativeBase):
 
 
 class Player(Base):
+    """Модель игрока
+    @param  id(int): Уникальный идентификатор игрока(первичный ключ).
+    @param name(str): Уникальное имя игрока, не более 30 символов.
+    """
     __tablename__: str = 'players'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -20,6 +24,20 @@ class Player(Base):
 
 
 class Match(Base):
+    """
+       Модель матча.
+
+       Attributes:
+           id (int): Уникальный идентификатор матча.
+           uuid (str): Уникальный идентификатор матча в формате UUID.
+           player1_id (int): Идентификатор первого игрока.
+           player2_id (int): Идентификатор второго игрока.
+           winner_id (int, optional): Идентификатор победителя матча (может быть None).
+           score (JSON, optional): Счет матча в формате JSON (может быть None).
+           player1 (relationship): Связь с первым игроком.
+           player2 (relationship): Связь со вторым игроком.
+           winner (relationship): Связь с победителем матча (если есть)
+    """
     __tablename__: str = 'matches'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

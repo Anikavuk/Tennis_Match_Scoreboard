@@ -25,7 +25,7 @@ class PlayerHandler(BaseController):
             # Проверка на дубликат в db
             players_dto = []
             for key, name in players_names.items():
-                player_id = PlayerDAO.save_player(name)
+                player_id = PlayerDAO._save_player(name)
                 if isinstance(player_id, int):
                     players_dto.append(PlayerDTO(player_id, name))
                 else:
