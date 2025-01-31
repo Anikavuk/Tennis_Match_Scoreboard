@@ -44,20 +44,20 @@ class CurrentMatchHandler(BaseController):
 
         score_logic = ScoreCalculator(current_score_dict)
         # Проверка на деус
-        if score_logic.check_deuce_condition():
+        if score_logic.is_deuce_condition_met():
             current_score_dict = score_logic.process_deuce_game(winner)
         # Проверка на AD в points
-        elif score_logic.check_advantage_condition():
+        elif score_logic.is_there_an_advantage():
             current_score_dict = score_logic.process_deuce_game(winner)
         # Проверка на тайбрейк
-        elif score_logic.check_tiebreaker_condition():
+        elif score_logic.is_tiebreaker_condition_met():
             tiebreaker_logic = Tiebreaker()
-            current_score_dict[winner]['points'] = tiebreaker_logic.counting_of_points(
+            current_score_dict[winner]['points'] = tiebreaker_logic._counting_of_points(
                 current_score_dict[winner]['points'])
             score_logic.update_games(current_score_dict, winner)
         # Если обычный счет
         else:
-            current_score_dict[winner]['points'] = match_logic.counting_of_points(
+            current_score_dict[winner]['points'] = match_logic._counting_of_points(
                 current_score_dict[winner]['points'])
             score_logic.update_games(current_score_dict, winner)
 
