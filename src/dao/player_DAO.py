@@ -1,10 +1,10 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from src.db_models.database import engine, Session
-from src.db_models.models import Player
-from src.errors import BaseAPIException, DatabaseErrorException
+from src.db.database import engine, Session
+from src.db.models import Player
+from src.errors import BaseAPIException, DatabaseErrorException, PlayerNotFoundException
 
 
 class PlayerDAO:
@@ -14,7 +14,7 @@ class PlayerDAO:
         self.name = name
 
     @staticmethod
-    def _save_player(players_name: str) -> int:
+    def _save_player(players_name: str) -> Union[ int, BaseAPIException]:
         """Сохранение имени игрока в базе данных.
         :param players_name: str Имя игрока
         :return player1.id: int Уникальный идентификатор игрока
@@ -22,15 +22,18 @@ class PlayerDAO:
         значит что имя уже есть в бд и выдает id игрока."""
         try:
             with Session(autoflush=False, bind=engine) as db:
-                player = Player(name=players_name)
-                db.add(player)
+                new_player = Player(name=players_name)
+                db.add(new_player)
                 db.commit()
-                return player.id
+                return new_player.id
         except IntegrityError:
             with Session(autoflush=False, bind=engine) as db:
-                player = db.query(Player).filter(Player.name == players_name).first()
+                existing_player: Optional[Player] = db.query(Player).filter(Player.name == players_name).first()
+                if existing_player is None:
+                    return BaseAPIException.error_response(
+                        exception=PlayerNotFoundException())
                 db.commit()
-                return player.id
+                return existing_player.id
 
     def _get_all_players(self) -> Union[List[Tuple[int, str]], BaseAPIException]:
         """Выгружает всех игроков из базы данных.

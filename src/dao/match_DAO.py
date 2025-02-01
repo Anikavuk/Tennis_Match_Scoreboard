@@ -1,11 +1,10 @@
-import json
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, cast
 
 from sqlalchemy.exc import OperationalError
 
-from src.db_models.database import engine, Session
-from src.db_models.models import Match
-from src.errors import BaseAPIException, DatabaseErrorException
+from src.db.database import engine, Session
+from src.db.models import Match
+from src.errors import BaseAPIException, DatabaseErrorException, MatchNotFoundException
 
 
 class MatchDAO:
@@ -43,7 +42,7 @@ class MatchDAO:
         except OperationalError:
             return BaseAPIException.error_response(exception=DatabaseErrorException())
 
-    def update_match(self, uuid: str, score_update: json) -> None:
+    def update_match(self, uuid: str, score_update: Dict) -> None:
         """Изменяет счет матча.
         :param uuid : str Уникальный идентификатор матча.
         :param score_update: json Обновленный счет матча.
@@ -105,26 +104,33 @@ class MatchDAO:
         except OperationalError:
             return BaseAPIException.error_response(exception=DatabaseErrorException())
 
-    def _get_match_info_by_uuid(self, uuid: str) -> Union[List[Dict[str, Any]], BaseAPIException]:
+    def _get_match_info_by_uuid(self, uuid: str) -> Union[Dict[str, Any], BaseAPIException]:
         """выгрузка матча по uuid
-         :param uuid : str Уникальный идентификатор матча.
-         :return: Union[Dict[str, Any], BaseAPIException]: Словарь с информацией о матче или
-                                                объект исключения, если произошла ошибка.
-        Raises: OperationalError: Если произошла ошибка при подключении к базе данных или выполнении запроса."""
+             :param uuid : str Уникальный идентификатор матча.
+             :return: Union[Dict[str, Any], BaseAPIException]: Словарь с информацией о матче или
+                                                    объект исключения, если произошла ошибка.
+            Raises: OperationalError: Если произошла ошибка при подключении к базе данных или выполнении запроса.
+        """
         try:
             with Session(autoflush=False, bind=engine) as db:
                 match = db.query(Match).filter(Match.uuid == uuid).first()
+                if match is None:
+                    return BaseAPIException.error_response(
+                        exception=MatchNotFoundException())
+
+                # Явное приведение score к Dict[str, Any] с помощью cast
+                score_dict: Dict[str, Any] = cast(Dict[str, Any], match.score)
+
                 result_dict = {
                     'player1': match.player1.name,
                     'player2': match.player2.name,
-                    'set1': match.score['match_data']['player1']['set'],
-                    'game1': match.score['match_data']['player1']['game'],
-                    'points1': match.score['match_data']['player1']['points'],
-                    'set2': match.score['match_data']['player2']['set'],
-                    'game2': match.score['match_data']['player2']['game'],
-                    'points2': match.score['match_data']['player2']['points'],
-                    'winner': match.winner
-
+                    'set1': score_dict['match_data']['player1']['set'],
+                    'game1': score_dict['match_data']['player1']['game'],
+                    'points1': score_dict['match_data']['player1']['points'],
+                    'set2': score_dict['match_data']['player2']['set'],
+                    'game2': score_dict['match_data']['player2']['game'],
+                    'points2': score_dict['match_data']['player2']['points'],
+                    'winner': match.winner_id
                 }
                 return result_dict
         except OperationalError:

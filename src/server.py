@@ -1,4 +1,4 @@
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, urlencode
 
 from pagination import Pagination
 from src.errors import NonExistentNameError, SameNamesError

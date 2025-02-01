@@ -4,8 +4,9 @@ import sqlalchemy.orm
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-from src.db_models.models import Base
+from src.db.models import Base
 
+# Загрузка переменных окружения из файла .env
 load_dotenv()
 
 database = os.getenv('DATABASE_URL')
