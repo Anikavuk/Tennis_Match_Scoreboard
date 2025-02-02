@@ -1,9 +1,9 @@
-from typing import Dict
+from typing import Dict, Union
 
 from src.dao.match_DAO import MatchDAO
 from src.dao.player_DAO import PlayerDAO
 from src.dto.score_DTO import ScoreDTO
-from src.errors import BaseAPIException, DatabaseErrorException
+from src.errors import BaseAPIException, DatabaseErrorException, MatchNotFoundException, PlayerNotFoundException
 from src.handlers.base_handler import BaseController
 from src.service.service import Tennis_Score, ScoreCalculator, Tiebreaker
 
@@ -14,7 +14,7 @@ class CurrentMatchHandler(BaseController):
     """
 
     @staticmethod
-    def _get_match_score(uuid_match: str) -> ScoreDTO:
+    def _get_match_score(uuid_match: str) -> Union[ScoreDTO, BaseAPIException]:
         """Выгружает информацию о матче по uuid
         :param uuid_match : str уникальный идентификатор матча.
         :return: ScoreDTO объект ScoreDTO
@@ -23,12 +23,14 @@ class CurrentMatchHandler(BaseController):
         try:
             match_dao = MatchDAO()
             match_info = match_dao._get_match_info_by_uuid(uuid_match)
-            match_score_DTO = ScoreDTO(**match_info)
-            return match_score_DTO
+            if isinstance(match_info, dict):
+                match_score_DTO = ScoreDTO(**match_info)
+                return match_score_DTO
+            return BaseAPIException.error_response(exception=MatchNotFoundException())
         except DatabaseErrorException:
             return BaseAPIException.error_response(exception=DatabaseErrorException())
 
-    def _process_point_won(self, uuid_match: str, winner: str) -> ScoreDTO:
+    def _process_point_won(self, uuid_match: str, winner: str) -> Union[ScoreDTO, BaseAPIException]:
         """
             Обрабатывает ситуацию, когда игрок выигрывает очко. Обновляет счет в гейме, в сете.
             Проверяет счет на деус, если points у игроков равные 40, тогда побед должно быть 2 раза подряд
@@ -39,7 +41,11 @@ class CurrentMatchHandler(BaseController):
             @return: объект ScoreDTO
         """
         # Преобразует score объекта ScoreDTO в словарь
-        current_score_dict = self._convert_score_dto_to_dict(self._get_match_score(uuid_match))
+        score_dto = self._get_match_score(uuid_match)
+        if isinstance(score_dto, ScoreDTO):
+            current_score_dict = self._convert_score_dto_to_dict(score_dto)
+        else:
+            return BaseAPIException.error_response(exception=MatchNotFoundException())
         match_logic = Tennis_Score()
 
         score_logic = ScoreCalculator(current_score_dict)
@@ -72,7 +78,7 @@ class CurrentMatchHandler(BaseController):
             self._determine_and_save_winner(uuid_match)
         return self._get_match_score(uuid_match)
 
-    def _convert_score_dto_to_dict(self, score_dto: object) -> Dict:
+    def _convert_score_dto_to_dict(self, score_dto: ScoreDTO) -> Dict:
         """Преобразует объект ScoreDTO в словарь.
 
         Аргументы:
@@ -101,20 +107,26 @@ class CurrentMatchHandler(BaseController):
             }
         }
 
-    def _determine_and_save_winner(self, uuid_match: str) -> int:
+    def _determine_and_save_winner(self, uuid_match: str) -> Union[int, BaseAPIException]:
         """ Метод проверяет на победу игрока,
         сохраяет в матче по uuid в winner
         и возвращает id игрока победителя"""
 
         # Получаем объект ScoreDTO для указанного uuid матча
         score_dto_obj = self._get_match_score(uuid_match)
+        if isinstance(score_dto_obj, BaseAPIException):
+            return BaseAPIException.error_response(exception=MatchNotFoundException())
         if score_dto_obj.set1 == 3:
             score_dto_obj.winner = score_dto_obj.player1
         elif score_dto_obj.set2 == 3:
             score_dto_obj.winner = score_dto_obj.player2
 
-        obj_player_dao = PlayerDAO(score_dto_obj.winner)
-        winner = obj_player_dao._save_player(score_dto_obj.winner)
-        match_dao = MatchDAO()
-        match_dao.update_winner(uuid_match, winner)
+        if isinstance(score_dto_obj.winner, str):
+            obj_player_dao = PlayerDAO(score_dto_obj.winner)
+            winner = obj_player_dao._save_player(score_dto_obj.winner)
+            if isinstance(winner, int):
+                match_dao = MatchDAO()
+                match_dao.update_winner(uuid_match, winner)
+        else:
+            raise BaseAPIException.error_response(exception=PlayerNotFoundException())
         return winner

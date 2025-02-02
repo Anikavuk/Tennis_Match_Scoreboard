@@ -5,7 +5,7 @@ class Tennis_Score:
     def __init__(self, tie_break=False):
         self.tie_break = tie_break
 
-    def _counting_of_points(self, point=0) -> Union[int, str]:
+    def _counting_of_points(self, point: Union[int, str] = 0) -> Union[int, str]:
         """Функция для подсчета очков в зависимости от режима игры.
 
             В случае тай-брейка используется специальный режим счета,
@@ -13,10 +13,12 @@ class Tennis_Score:
             В обычном режиме используются стандартные значения теннисного счета:
             0, 15, 30, 40 и 'AD' (преимущество).
 
-            :param `point`: Текущее количество очков игрока. По умолчанию равно 0.
+            :param `point: Union[int, str]`: Текущее количество очков игрока. По умолчанию равно 0.
 
-            :return:  int или str: Новое значение очков после увеличения.
+            :return:  Union[int, str]: Новое значение очков после увеличения.
         """
+        # Объявляем dict_points с общим типом Dict[Union[int, str], Union[int, str]]
+        dict_points: Dict[Union[int, str], Union[int, str]]
         if self.tie_break:
             dict_points = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 0}
         else:
@@ -43,10 +45,10 @@ class ScoreCalculator:
           }
     """
 
-    def __init__(self, score_dict: dict) -> Dict:
+    def __init__(self, score_dict: Dict) -> None:
         self.score_dict = score_dict
 
-    def check_the_winner(self, score_dict: dict) -> str:
+    def check_the_winner(self, score_dict: dict) -> Union[str, None]:
         """Проверяет счет и возвращает имя победителя.
         Функция проверяет количество выигранных сетов у каждого игрока.
         Если один из игроков выиграл три сета, он объявляется победителем.
@@ -66,6 +68,7 @@ class ScoreCalculator:
             return list(score_dict.keys())[0]
         elif score_dict['player2']['set'] == 3:
             return list(score_dict.keys())[1]
+        return None
 
     def reset_the_games(self):
         """Этот метод обнуляет значение ключа 'game' для каждого игрока в словаре score_dict.
@@ -73,7 +76,7 @@ class ScoreCalculator:
         self.score_dict['player1']['game'] = 0
         self.score_dict['player2']['game'] = 0
 
-    def reset_the_points(self):
+    def reset_the_points(self) -> None:
         """Этот метод обнуляет значение ключа 'points' для каждого игрока в словаре score_dict.
         После вызова этого метода оба игрока будут иметь счет игры равный нулю."""
         self.score_dict['player1']['points'] = 0
@@ -112,7 +115,7 @@ class ScoreCalculator:
         """
         return self.score_dict['player1']['game'] == 6 and self.score_dict['player2']['game'] == 6
 
-    def update_games(self, score_dict: Dict[str, Dict[str, Union[int, str]]], winner: str) -> None:
+    def update_games(self, score_dict: Dict[str, Dict[str, int]], winner: str) -> None:
         """
         Обновляет счёт геймов у победителя и сбрасывает очки у обоих игроков.
 
@@ -167,7 +170,7 @@ class ScoreCalculator:
             self.reset_the_points()
         return self.score_dict
 
-    def is_there_an_advantage(self)-> bool:
+    def is_there_an_advantage(self) -> bool:
         """
         Проверяет, есть ли у одного из игроков преимущество (Advantage).
         Функция проверяет, есть ли в текущем счёте у одного из игроков состояние 'AD' (Advantage).

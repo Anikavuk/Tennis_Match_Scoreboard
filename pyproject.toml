@@ -17,6 +17,7 @@ jinja2 = "^3.1.4"
 paste = "^3.10.1"
 whitenoise = "^6.8.2"
 mypy = "^1.14.1"
+types-waitress = "^3.0.1.20241117"
 
 [build-system]
 requires = ["poetry-core"]

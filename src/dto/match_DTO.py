@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, TypedDict, Union
+from typing import Optional, TypedDict, Union, cast
 
 
 class MatchScore(TypedDict):
@@ -13,11 +13,13 @@ class MatchDTO:
     player1_id: int
     player2_id: int
     winner_id: Optional[int]
-    score: MatchScore
+    score: Optional[MatchScore]
 
-    def __init__(self, uuid: str, player1_id: int, player2_id: int,
+    def __init__(self, uuid: str,
+                 player1_id: int,
+                 player2_id: int,
                  winner_id: Optional[int] = None,
-                 score: MatchScore = None):
+                 score: Optional[MatchScore] = None):
         """Класс шаблон DTO для выгрузки матча
         :@param player1_id: id игрока 1
         :@param player2_id: id игрока 2
@@ -28,8 +30,8 @@ class MatchDTO:
         self.player1_id = player1_id
         self.player2_id = player2_id
         self.winner_id = winner_id
-        self.score = score or {"player1": {"set": 0, "game": 0, "points": 0},
-                               "player2": {"set": 0, "game": 0, "points": 0}}
+        self.score = cast(MatchScore, score or {"player1": {"set": 0, "game": 0, "points": 0},
+                                                "player2": {"set": 0, "game": 0, "points": 0}})
 
     def to_dict(self) -> object:
         """Метод возвращает словарь с данными матча"""
