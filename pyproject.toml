@@ -18,6 +18,7 @@ paste = "^3.10.1"
 whitenoise = "^6.8.2"
 mypy = "^1.14.1"
 types-waitress = "^3.0.1.20241117"
+pytest = "^8.3.4"
 
 [build-system]
 requires = ["poetry-core"]
