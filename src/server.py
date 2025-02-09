@@ -6,6 +6,7 @@ from src.handlers.match_score_handler import CurrentMatchHandler
 from src.handlers.matches_handler import FinishedMatchesHandler
 from src.handlers.present_match_handler import MatchRegistrationHandler
 from src.handlers.start_game_handler import PlayerHandler
+from src.dto.score_DTO import ScoreDTO
 from src.view.jinja_engine import render_template
 
 
@@ -157,10 +158,25 @@ def application(environ, start_response):
         query_string = environ.get('QUERY_STRING', '') # 'uuid=ff004c18-c186-4319-bcd8-46581fe9f7b7'
         params = parse_qs(query_string)
         uuid_match = params.get('uuid', [None])[0]
+        if not uuid_match:
+            error_message = "UUID not provided"
+            query_string = urlencode({'error': error_message})
+            headers = [('Location', '/messages?' + query_string),
+                       ('Content-Type', 'text/plain; charset=utf-8'),
+                       ('Content-Length', '0')]
+            start_response('302 Found', headers)
+            return []
         match_handler = CurrentMatchHandler()
         match_data = match_handler._get_match_score(
             uuid_match)  # ScoreDTO(player1='ПА', player2='ААА', set1=2, set2=0, game1=6, game2=4, points1='AD', points2=15)
-
+        if not isinstance(match_data, ScoreDTO):
+            error_message = str(match_data)
+            query_string = urlencode({'error': error_message})
+            headers = [('Location', '/messages?' + query_string),
+                       ('Content-Type', 'text/plain; charset=utf-8'),
+                       ('Content-Length', '0')]
+            start_response('302 Found', headers)
+            return []
         response_body = render_template('match_score.html',
                                         player1=match_data.player1,
                                         player2=match_data.player2,

@@ -23,6 +23,8 @@ class CurrentMatchHandler(BaseController):
         try:
             match_dao = MatchDAO()
             match_info = match_dao._get_match_info_by_uuid(uuid_match)
+            if len(match_info)==1:
+                return MatchNotFoundException("Матча с таким UUID не существует в базе данных")
             if isinstance(match_info, dict):
                 match_score_DTO = ScoreDTO(**match_info)
                 return match_score_DTO
