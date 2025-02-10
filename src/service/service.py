@@ -99,7 +99,8 @@ class ScoreCalculator:
         player1_games = score_dict['player1']['game']
         player2_games = score_dict['player2']['game']
 
-        if ((player1_games >= 6 or player2_games >= 6) and abs(player1_games - player2_games) >= 2) or (
+        if ((player1_games >= 6 or player2_games >= 6) and
+            abs(player1_games - player2_games) >= 2) or (
                 player1_games == 7 or player2_games == 7):
             if player1_games > player2_games:
                 score_dict['player1']['set'] += 1
