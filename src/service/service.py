@@ -33,7 +33,7 @@ class Tiebreaker(Tennis_Score):
         super().__init__(tie_break=True)
 
 
-class ScoreCalculator:
+class Score_Calculator:
     """ Класс для расчета и отслеживания счета в спортивном матче.
         Класс хранит текущий счет двух игроков, включая количество сетов, геймов и очков.
 

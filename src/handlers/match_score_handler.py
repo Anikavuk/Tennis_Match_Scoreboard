@@ -5,7 +5,7 @@ from src.dao.player_DAO import PlayerDAO
 from src.dto.score_DTO import ScoreDTO
 from src.errors import BaseAPIException, DatabaseErrorException, MatchNotFoundException, PlayerNotFoundException
 from src.handlers.base_handler import BaseController
-from src.service.service import Tennis_Score, ScoreCalculator, Tiebreaker
+from src.service.service import Tennis_Score, Score_Calculator, Tiebreaker
 
 
 class CurrentMatchHandler(BaseController):
@@ -50,7 +50,7 @@ class CurrentMatchHandler(BaseController):
             return BaseAPIException.error_response(exception=MatchNotFoundException())
         match_logic = Tennis_Score()
 
-        score_logic = ScoreCalculator(current_score_dict)
+        score_logic = Score_Calculator(current_score_dict)
         # Проверка на деус
         if score_logic.is_deuce_condition_met():
             current_score_dict = score_logic.process_deuce_game(winner)
