@@ -13,3 +13,4 @@ if __name__ == '__main__':
     app.add_files('src/view/static/', prefix='static/')
     serve(TransLogger(app, setup_console_handler=False))
     serve(app, host='0.0.0.0', port=8080)
+    # serve(app, host='79.174.80.252', port=8090)

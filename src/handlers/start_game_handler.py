@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 
 from src.dao.player_DAO import PlayerDAO
 from src.dto.player_DTO import PlayerDTO
-from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError, SameNamesError
+from src.errors import BaseAPIException, InvalidPlayernameError, IntegrityError, SameNamesError, UserNamesError
 from src.handlers.base_handler import BaseController
 
 
@@ -23,6 +23,7 @@ class PlayerHandler(BaseController):
             Исключения:
             - InvalidPlayernameError: Возникает, если одно из имен игроков пустое или некорректное.
             - IntegrityError: Возникает, если происходит дублирование имени, которое уже есть в базе данных.
+            - UserNamesError: Возникает, если имя игрока длиннее 30 символов
             """
         try:
             # Проверка на пустые имена игроков
@@ -35,7 +36,10 @@ class PlayerHandler(BaseController):
             if not all(players_names.values()):
                 raise InvalidPlayernameError
 
-            # Проверка валидности имен игроков
+            # Проверка имени на длину
+            if not all(isinstance(name, str) and PlayerDAO.check_name_length(name) for name in players_names.values()):
+                raise UserNamesError
+                # Проверка валидности имен игроков
             if not all(isinstance(name, str) and PlayerDAO.is_valid_username(name) for name in players_names.values()):
                 raise InvalidPlayernameError
 
@@ -55,3 +59,5 @@ class PlayerHandler(BaseController):
             return BaseAPIException.error_response(exception=InvalidPlayernameError())
         except IntegrityError:
             return BaseAPIException.error_response(exception=IntegrityError())
+        except UserNamesError:
+            return BaseAPIException.error_response(exception=UserNamesError())

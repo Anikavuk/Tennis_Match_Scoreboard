@@ -16,6 +16,12 @@ class IntegrityError(Exception):
         super().__init__(self.message)
 
 
+class UserNamesError(Exception):
+    def __init__(self, message='Имя игрока должно содержать не более 30 символов.'):
+        self.message = message
+        super().__init__(self.message)
+
+
 class SameNamesError(Exception):
     def __init__(self, message='Вы ввели одинаковые имена, а надо разные:)'):
         self.message = message
@@ -66,4 +72,7 @@ class BaseAPIException:
         elif isinstance(exception, PlayerNotFoundException):
             error_code = 507
             error_message = 'Игрока с таким именем нет в базе данных'
+        elif isinstance(exception, UserNamesError):
+            error_code = 507
+            error_message = 'Имя игрока должно содержать не более 30 символов.'
         return {error_code: error_message}

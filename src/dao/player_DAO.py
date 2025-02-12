@@ -85,3 +85,7 @@ class PlayerDAO:
                     (1040 <= ord(letter) <= 1103) or (ord(letter) == 32)):
                 return False
         return True
+
+    @staticmethod
+    def check_name_length(name):
+        return len(name) <= 30
