@@ -14,7 +14,7 @@ class PlayerDAO:
         self.name = name
 
     @staticmethod
-    def _save_player(players_name: str) -> Union[ int, BaseAPIException]:
+    def _save_player(players_name: str) -> Union[int, BaseAPIException]:
         """Сохранение имени игрока в базе данных.
         :param players_name: str Имя игрока
         :return player1.id: int Уникальный идентификатор игрока
@@ -67,8 +67,8 @@ class PlayerDAO:
 
     @staticmethod
     def is_valid_username(name: str) -> bool:
-        """Проверка на валидацию введенного имени.
-
+        """
+        Проверка на валидацию введенного имени.
         Этот метод проверяет, является ли введенное имя пользователя
         допустимым на основании заданных критериев.
 
@@ -79,13 +79,23 @@ class PlayerDAO:
                  кириллические буквы и пробелы), иначе False.
         :rtype: bool
         """
-        for letter in name:
+        cleaned_name = name.strip()
+
+        if not cleaned_name or cleaned_name.isspace():
+            return False
+
+        # Проверяем каждый символ в имени
+        for letter in cleaned_name:
             if not ((65 <= ord(letter) <= 90) or
                     (97 <= ord(letter) <= 122) or
-                    (1040 <= ord(letter) <= 1103) or (ord(letter) == 32)):
+                    (1040 <= ord(letter) <= 1103) or
+                    (letter == ' ')):
                 return False
+
+
         return True
 
     @staticmethod
     def check_name_length(name):
         return len(name) <= 30
+

@@ -30,7 +30,7 @@ def application(environ, start_response):
         body = environ['wsgi.input'].read(content_length).decode('utf-8')
 
         form = parse_qs(body)
-        if form['player1'] == form['player2']:
+        if form['player1'][0].strip().lower()  == form['player2'][0].strip().lower() :
             error_response = SameNamesError()
             error_message = error_response.message
             query_string = urlencode({'error': error_message})
