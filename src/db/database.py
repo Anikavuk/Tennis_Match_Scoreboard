@@ -9,7 +9,8 @@ from src.db.models import Base
 # Загрузка переменных окружения из файла .env
 load_dotenv()
 
-database = os.getenv('DATABASE_URL')
+database = os.environ['DATABASE_URL']
+# database = os.getenv('DATABASE_URL')
 
 engine = create_engine(database, echo=True, future=True)
 
